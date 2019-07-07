@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const passportJWT = require('passport-jwt');
 const database = require('../database');
 const bcrypt = require('bcrypt-nodejs');
+const passport = require('passport');
 
 let ExtractJwt = passportJWT.ExtractJwt;
 let JwtStrategy = passportJWT.Strategy;
@@ -12,17 +13,25 @@ jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme('JWT');
 jwtOptions.secretOrKey = 'wowwow';
 
 // lets create our strategy for web token
-let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
-  console.log('payload received', jwt_payload);
-  let user = getUser({ id: jwt_payload.id });
 
-  if (user) {
-    next(null, user);
-  } else {
-    next(null, false);
-  }
+let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+    const usernames = `SELECT * FROM users WHERE id = "${jwt_payload.id}"`;
+    database.query(usernames, (error, rows) => {
+        let user = { ...rows[0]};
+        if (rows) return next(null, user);
+        else next(null, false);  
+    });
 });
-//passport.use(strategy);
+
+passport.use(strategy);
+
+exports.getUser = id => {
+    const usernames = `SELECT * FROM users WHERE id = "${id}"`;
+    database.query(usernames, (error, rows) => {
+        if (error || !rows) return null;
+        if (rows) return rows[0];
+    });
+};
 
 
 exports.signup = (parameters, res) => {
@@ -41,7 +50,7 @@ exports.signup = (parameters, res) => {
                             return;
     }
 
-    const usernames = `SELECT username FROM users WHERE username = "${username}" OR phone = ${phone}`;
+    const usernames = `SELECT username FROM users WHERE username = "${username}" OR phone = "${phone}"`;
     const insertQuery = `INSERT INTO users ( username, password, firstname,lastname , phone, isDriver) values (?,?,?,?,?,?)`;
     database.query(usernames, (error, rows) => {
         if (error)
@@ -61,19 +70,28 @@ exports.signup = (parameters, res) => {
 
 exports.login = (parameters, res) => {
 
-    const { username, password } = req.body;
+    const
+    username = parameters.username,
+    password = parameters.password;
+
     if (username && password) {
-        const queryStatement = `SELECT username FROM users WHERE username = "${username}" AND password = "${bcrypt.hashSync(password, null, null)}"`;
+        const queryStatement = `SELECT * FROM users WHERE username = "${username}"`;
         database.query(queryStatement, (error, rows) =>{
+ 
             if (error)
                 res.status(401).json({ error:error });
             else
                 if (!rows.length)
                     res.status(401).json({ message: 'Invalid credentials'});
-                else {
-                    // let payload = { id: username.id };
-                    // let token = jwt.sign(payload, jwtOptions.secretOrKey);
-                    res.status(200).json({ msg: 'ok', token: token });
+                else if (bcrypt.compareSync(password, rows[0].password)){
+                    let payload = { id: rows[0].id };
+                    let token = jwt.sign(payload, jwtOptions.secretOrKey);
+                    res.status(200).json({  msg: 'ok',
+                                            token: token,
+                                            user: rows[0]
+                                         });
+                } else {
+                    res.status(500).json({ error: 'Incorrect password'});
                 }
         })
     }

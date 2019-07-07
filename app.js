@@ -15,7 +15,7 @@ const
     .use(bodyParser.json())
     .use(express.static(path.join(__dirname, 'public')))
     .use(passport.initialize())
-    //.use(logger('dev'))
+    .use(logger('dev'))
     .use(router);
     
 
