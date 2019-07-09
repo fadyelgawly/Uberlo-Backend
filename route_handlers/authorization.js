@@ -61,6 +61,28 @@ exports.signup = (parameters, res) => {
                     if(error)
                         res.status(500).json({ error:error });
                     else
+                        if (isDriver){
+                            const getquery = `SELECT id FROM users WHERE username = "${username}"`;
+                            database.query(usernames, (error, rows) => {
+                                if (error){
+                                    res.status(401).json({ error:error });
+                                    return;
+                                }
+                                const driverInsert = `INSERT INTO driver ( id, isAvailable) values ("${rows[0].id}", "0")`;;
+                                database.query(driverInsert, (error, rows) => {
+                                    if (error){
+                                        res.status(401).json({ error:error });
+                                        return;
+                                    } else {
+                                        res.status(200).json({ signup :"success" });
+                                    }
+                                    
+                                });
+
+                                
+                            });
+
+                        }
                         res.status(200).json({ signup :"success" });
                 });
             else

@@ -3,6 +3,8 @@ var router = express.Router();
 var authorization = require('./route_handlers/authorization');
 var rideHandle = require('./route_handlers/rideHandler');
 var passport = require('passport');
+var user = require('./route_handlers/users');
+var db = require('./database')
 
 const axios = require('axios');
 
@@ -48,45 +50,41 @@ router.get('/getavailablerides',(req, res, next) => {
 
 
 
-router.get('/getuser',(req, res, next) => {
-    if (!req.body.id){
-        res.status(500).json({
-            error: "missing user id"
-        })
-    } else {
-        res.status(200).json({
-            user: authorization.getUser(req.body.id)
-        })
-    }
-});
-
-router.patch('/UserInformation',(req, res, next) => {
-    const name = req.body.name;
-    const phone = req.body.phone;
-    if (!name || !phone) {
-        res.status(500).json({
-            message: "Missing Requirements"
-        });
-        return;
-    }
-    connection.query("UPDATE users SET name = '?', phone = '?' WHERE id = 1", function(err, rows) { //TODO: rider id
-        if (err)
-            res.status(500).json({
-                message: err.message
-            });
-            if (rows.affectedRows){
-                res.status(200).json({
-                    message: 'update-submit-success'
-                });   
-            } else {
+router.get('/user',(req, res, next) => {
+    // if (!req.user.id){
+    //     res.status(500).json({
+    //         error: "missing user id"
+    //     })
+    // } else {
+        console.log("/user");
+        let id = 9;
+        var user = {};
+        const usernames = `SELECT * FROM users WHERE id = "${id}"`;
+        console.log(usernames);
+        db.query(usernames, (error, rows) => {
+            console.log("quered");
+            if (error || !rows) 
                 res.status(500).json({
-                    message: 'update-submit-failure'
+                    error: "error"
                 });
-            } 
-    });
+            if (rows)
+                res.status(200).json({
+                   user: rows[0]
+                });
+        });
+  //  }
 });
 
-router.patch('/ChangeDriverAvailability',(req, res, next) => {
+router.patch('/user',(req, res, next) => {
+    user.patchUser(req, res);
+});
+
+router.patch('/admin/user',(req, res, next) => {
+    user.patchUserAsAdmin(req, res);
+});
+
+router.patch('/driver/changestatus',(req, res, next) => {
+    const id = req.user.id;
     const isAvailable = req.body.isAvailable;
     if (!isAvailable) {
         res.status(500).json({
@@ -94,24 +92,51 @@ router.patch('/ChangeDriverAvailability',(req, res, next) => {
         });
         return;
     }
-    connection.query("UPDATE driver SET isAvailable = '?' WHERE id = 1",[isAvailable], function(err, rows) { //TODO: rider id
+    db.query("UPDATE driver SET isAvailable = '?' WHERE id = ?",[isAvailable, id], function(err, rows) { //TODO: rider id
         if (err)
             res.status(500).json({
                 message: err.message
             });
             if (rows.affectedRows){
                 res.status(200).json({
-                    message: 'update-submit-success'
+                    message: 'success'
                 });   
             } else {
                 res.status(500).json({
-                    message: 'update-submit-failure'
+                    message: 'failure'
                 });
             } 
     });
 });
 
-router.patch('/AcceptRide',(req, res, next) => {
+router.patch('/driver/changelocation',(req, res, next) => {
+    const id = req.user.id;
+    const currentArea = req.body.currentArea;
+    if (!currentArea) {
+        res.status(500).json({
+            message: "Missing Requirements"
+        });
+        return;
+    }
+    db.query("UPDATE driver SET currentArea = '?' WHERE id = ?",[isAvailable, id], function(err, rows) { //TODO: rider id
+        if (err)
+            res.status(500).json({
+                message: err.message
+            });
+            if (rows.affectedRows){
+                res.status(200).json({
+                    message: 'success'
+                });   
+            } else {
+                res.status(500).json({
+                    message: 'failure'
+                });
+            } 
+    });
+});
+
+router.patch('/driver/acceptRide',(req, res, next) => {
+    const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
         res.status(500).json({
@@ -119,7 +144,9 @@ router.patch('/AcceptRide',(req, res, next) => {
         });
         return;
     }
-    connection.query("UPDATE ride SET driver = 1 WHERE rideNo = ?",[rideNo], function(err, rows) { //TODO: rider id
+    db.query("UPDATE ride SET driver = ?, rideStatus = A WHERE rideNo = ?", 
+    [driverid ,rideNo],
+    function(err, rows) { 
         if (err)
             res.status(500).json({
                 message: err.message
@@ -136,49 +163,118 @@ router.patch('/AcceptRide',(req, res, next) => {
     });
 });
 
-router.get('/Transactions',(req, res, next) => {
-    connection.query("SELECT * FROM transaction WHERE fromUser = 1 OR toUser = 1", function(err, rows) { //TODO: rider id
-        if (err)
-            res.status(500).json({
-                message: err.message
-            });
-        res.status(200).json({
-            user: rows
-        });
-    });
-});
 
-router.patch('/ChangeDriver',(req, res, next) => {
-    const username = req.body.username;
-    const driver = req.body.driver;
-    
-    if (!username || !driver) {
+router.patch('/driver/endtrip',(req, res, next) => {
+    const driverid = req.user.id
+    const rideNo = req.body.rideNo;
+    if (!rideNo) {
         res.status(500).json({
             message: "Missing Requirements"
         });
         return;
     }
-    connection.query("UPDATE users SET isDriver = ? WHERE username = ?",[driver, username], function(err, rows) { //TODO: rider id
-        if (err)
+    db.query("UPDATE ride SET rideStatus = A WHERE rideNo = ?",[rideNo], function(err, rows) { //TODO: rider id
+        if (err){
             res.status(500).json({
                 message: err.message
             });
-            if (rows.affectedRows){
-                res.status(200).json({
-                    message: 'update-submit-success'
-                });   
-            } else {
-                res.status(500).json({
-                    message: 'update-submit-failure'
-                });
-            } 
+            return;
+        }
+        if (rows.affectedRows){
+            db.query("SELECT rider FROM ride WHERE rideNo = ?", [rideNo] ,function(err, rows){
+                if (err || !rows){
+                    res.status(500).json({
+                        message: 'update-submit-failure'
+                    });
+                    return;
+                } else {
+                    db.query("INSERT INTO transaction (toUser ,fromUser, 143) values (?,?)", [driverid, rows[0].rider], function(err, rows){
+                        if (err){
+                            res.status(200).json({
+                                message: 'update-submit-success'
+                            }); 
+                            return;
+                        }
+                    });
+                }
+            }); 
+        } else {
+            res.status(500).json({
+                message: 'update-submit-failure'
+            });
+        } 
+    });
+});
+
+router.patch('/driver/cancelTrip',(req, res, next) => {
+    const driverid = req.user.id
+    const rideNo = req.body.rideNo;
+    if (!rideNo) {
+        res.status(500).json({
+            message: "Missing Requirements"
+        });
+        return;
+    }
+    db.query("UPDATE ride SET rideStatus = A WHERE rideNo = ?",[rideNo], function(err, rows) { //TODO: rider id
+        if (err){
+            res.status(500).json({
+                message: err.message
+            });
+            return;
+        }
+        if (rows.affectedRows){
+            db.query("SELECT rider FROM ride WHERE rideNo = ?", [rideNo] ,function(err, rows){
+                if (err || !rows){
+                    res.status(500).json({
+                        message: 'update-submit-failure'
+                    });
+                    return;
+                } else {
+                    db.query("INSERT INTO transaction (fromUser ,toUser, 10) values (?,?)", [driverid, rows[0].rider], function(err, rows){
+                        if (err){
+                            res.status(200).json({
+                                message: 'update-submit-success'
+                            }); 
+                            return;
+                        }
+                    });
+                }
+            }); 
+        } else {
+            res.status(500).json({
+                message: 'update-submit-failure'
+            });
+        } 
     });
 });
 
 
+router.post('/admin/transaction',(req, res, next) => {
 
+    const isAdmin = req.user.isAdmin;
+    const toUser = req.body.toUser;
+    const amount = req.body.amount;
 
+    if (!isAdmin) {
+        res.status(500).json({
+            error: "not authorized to add credit"
+        });
+        return;
+    }
 
+    const insertQuery = `INSERT INTO transaction (toUser, amount) values (?,?)`;
+    db.query(insertQuery, [toUser, amount], (error, rows) => {
+        if (error) {
+            res.status(500).json({
+                error: error
+            }); 
+        } else {
+            res.status(200).json({
+                rows: rows
+            }); 
 
+        }
+    });
+});
 
 module.exports = router;
