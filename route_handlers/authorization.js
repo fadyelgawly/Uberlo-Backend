@@ -17,9 +17,10 @@ jwtOptions.secretOrKey = 'wowwow';
 let strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
     const usernames = `SELECT * FROM users WHERE id = "${jwt_payload.id}"`;
     database.query(usernames, (error, rows) => {
-        let user = { ...rows[0]};
-        if (rows) return next(null, user);
-        else next(null, false);  
+        if (rows){
+            let user = { ...rows[0]};
+            return next(null, user);
+        } else next(null, false);  
     });
 });
 
@@ -92,14 +93,12 @@ exports.signup = (parameters, res) => {
 
 exports.login = (parameters, res) => {
 
-    const
-    username = parameters.username,
-    password = parameters.password;
+    const username = parameters.username;
+    const password = parameters.password;
 
     if (username && password) {
         const queryStatement = `SELECT * FROM users WHERE username = "${username}"`;
         database.query(queryStatement, (error, rows) =>{
- 
             if (error)
                 res.status(401).json({ error:error });
             else
@@ -116,5 +115,7 @@ exports.login = (parameters, res) => {
                     res.status(500).json({ error: 'Incorrect password'});
                 }
         })
+    } else {
+        res.status(500).json({ error: 'No credentials'});
     }
 }

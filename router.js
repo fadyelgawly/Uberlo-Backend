@@ -6,6 +6,7 @@ var passport = require('passport');
 var user = require('./route_handlers/users');
 var db = require('./database')
 
+
 const axios = require('axios');
 
 router.all('/', (req, res) => {
@@ -31,7 +32,7 @@ router.post('/signup', (req, res) => {
 
 });
 
-router.get('/login', (req, res) => {
+router.post('/login', (req, res) => {
     authorization.login(req.body, res);
 });
 
@@ -50,19 +51,16 @@ router.get('/getavailablerides',(req, res, next) => {
 
 
 
-router.get('/user',(req, res, next) => {
-    // if (!req.user.id){
-    //     res.status(500).json({
-    //         error: "missing user id"
-    //     })
-    // } else {
-        console.log("/user");
+router.get('/user', passport.authenticate('jwt', { session: false }),  (req, res, next) => {
+
+    if (!req.user.id){
+        res.status(500).json({
+            error: "missing user id"
+        })
+    } else {
         let id = 9;
-        var user = {};
-        const usernames = `SELECT * FROM users WHERE id = "${id}"`;
-        console.log(usernames);
+        const usernames = `SELECT * FROM users WHERE id = "${req.user.id}"`;
         db.query(usernames, (error, rows) => {
-            console.log("quered");
             if (error || !rows) 
                 res.status(500).json({
                     error: "error"
@@ -72,7 +70,7 @@ router.get('/user',(req, res, next) => {
                    user: rows[0]
                 });
         });
-  //  }
+    }
 });
 
 router.patch('/user',(req, res, next) => {
@@ -81,6 +79,29 @@ router.patch('/user',(req, res, next) => {
 
 router.patch('/admin/user',(req, res, next) => {
     user.patchUserAsAdmin(req, res);
+});
+
+router.get('/admin/users', passport.authenticate('jwt', { session: false }) ,(req, res, next) => {
+    if (req.user.isAdmin) {
+        db.query("SELECT * FROM users", function(error, rows) {
+            if (error){
+                res.status(500).json({
+                    error : "Couldn't reach database"
+                });
+            } else {
+                res.status(200).json({
+                    users : rows
+                });
+            }
+        });
+
+
+    } else {
+        res.status(400).json({
+            error : "not authorized, only admins are authorized"
+        })
+    }
+
 });
 
 router.patch('/driver/changestatus',(req, res, next) => {

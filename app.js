@@ -9,14 +9,15 @@ const
   router = require('./router'),
   express = require('express'),
   app = express()
-    .use(cors())
-    .use(bodyParser.urlencoded({ extended: true }))
-    .use(cookieParser())
-    .use(bodyParser.json())
-    .use(express.static(path.join(__dirname, 'public')))
-    .use(passport.initialize())
-    .use(logger('dev'))
-    .use(router);
+
+  app.use(cors())
+  app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(cookieParser())
+  app.use(bodyParser.json())
+  app.use(express.static(path.join(__dirname, 'public')))
+  app.use(passport.initialize())
+  app.use(logger('dev'))
+  app.use(router);
     
 
 // catch 404 and forward to error handler
