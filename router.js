@@ -104,6 +104,29 @@ router.get('/admin/users', passport.authenticate('jwt', { session: false }) ,(re
 
 });
 
+router.get('/admin/users', passport.authenticate('jwt', { session: false }) ,(req, res, next) => {
+    if (req.user.isAdmin) {
+        db.query("SELECT * FROM rides", function(error, rows) {
+            if (error){
+                res.status(500).json({
+                    error : "Couldn't reach database"
+                });
+            } else {
+                res.status(200).json({
+                    users : rows
+                });
+            }
+        });
+
+
+    } else {
+        res.status(400).json({
+            error : "not authorized, only admins are authorized"
+        })
+    }
+
+});
+
 router.patch('/driver/changestatus',(req, res, next) => {
     const id = req.user.id;
     const isAvailable = req.body.isAvailable;
