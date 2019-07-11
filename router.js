@@ -87,9 +87,6 @@ router.get('/getavailablerides', passport.authenticate('jwt', { session: false }
                         });
                     }
                 });
-                res.status(401).json({
-                    rides: "driver didn't set his availability state nor currentLocation"
-                });
             }
         });
 
