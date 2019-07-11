@@ -191,7 +191,7 @@ router.patch('/driver/changestatus', passport.authenticate('jwt', { session: fal
                     message: err.message
                 });
             } else if (rows) {
-                db.query("UPDATE driver SET isAvailable = '?' WHERE id = ?", [req.body.isAvailable, req.user.id], function (err, rows) {
+                db.query("UPDATE driver SET isAvailable = ? WHERE id = ?", [req.body.isAvailable, req.user.id], function (err, rows) {
                     if (err) {
                         res.status(500).json({
                             message: err.message
