@@ -76,7 +76,7 @@ router.get('/getavailablerides', passport.authenticate('jwt', { session: false }
 
                 
                 const location = rows[0].currentArea;
-                db.query("SELECT * FROM rides WHERE fromArea = ?", [location], function (err, rows) {
+                db.query("SELECT * FROM ride WHERE fromArea = ?", [location], function (err, rows) {
                     if (err) {
                         res.status(500).json({
                             error: err.message
