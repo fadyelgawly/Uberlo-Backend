@@ -202,7 +202,7 @@ router.patch('/driver/changestatus', passport.authenticate('jwt', { session: fal
                         });
                     } else {
                         res.status(500).json({
-                            message: "I don't know what's happening here or how did you reach here put tell me if you do"
+                            message: rows
                         });
                     }
                 });
