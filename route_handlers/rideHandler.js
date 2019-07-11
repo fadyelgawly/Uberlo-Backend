@@ -22,11 +22,11 @@ exports.requestRide = (req, res) => {
         else {
             if (rows.affectedRows){
                 res.status(200).json({
-                    message: 'request-submit-success'
+                    successful: true
                 });   
             } else {
                 res.status(500).json({
-                    message: 'request-submit-failure'
+                    successful: false
                 });
             }  
         }
