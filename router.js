@@ -206,7 +206,7 @@ router.patch('/driver/changestatus', passport.authenticate('jwt', { session: fal
                         });
                     }
                 });
-            } else if (!rows) {
+            } else if (!rows[0]) {
                 db.query("INSERT INTO driver (id , isAvailable) values (?,?)", [req.user.id, req.body.isAvailable], function (err, rows) {
                     if (err) {
                         res.status(500).json({
