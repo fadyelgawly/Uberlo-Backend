@@ -34,22 +34,4 @@ exports.requestRide = (req, res) => {
 }
 
 
-exports.getavailablerides = (parameters, res) => {
-    const fromArea = parameters.fromArea
-    if (!fromArea){
-        res.status(500).json({
-            error: "missing fromArea"
-        });
-        return;
-    }
-    connection.query("SELECT * FROM ride WHERE driver = null AND fromArea = ?",[fromArea], function(err, rows) { 
-        if (err)
-            res.status(500).json({
-                message: err.message
-            });
-        res.status(200).json({
-            rides: rows
-        });
-    });
-}
 
