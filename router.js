@@ -47,7 +47,7 @@ router.get('/getuserrides', (req, res, next) => {
 
 router.get('/getrequestedride', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const id = req.user.id;
-    db.query('SELECT * FROM rides WHERE rider = ? AND rideStatus != `D` AND rideStatus != `C`', [id], (err,rows) => {
+    db.query('SELECT * FROM ride WHERE rider = ? AND rideStatus != `D` AND rideStatus != `C`', [id], (err,rows) => {
         if (err){
             res.status(500).json({
                 error: err.message
