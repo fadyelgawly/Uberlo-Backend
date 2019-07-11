@@ -37,23 +37,56 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/requestride', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    rideHandle.requestRide(req, res);   
+    rideHandle.requestRide(req, res);
 });
 
 
-router.get('/getuserrides',(req, res, next) => {
+router.get('/getuserrides', (req, res, next) => {
     rideHandle.getuserrides(req.body, res);
 });
 
-router.get('/getavailablerides',(req, res, next) => {
-    rideHandle.getavailablerides(req.body, res);
+router.get('/getavailablerides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.user.isDriver) {
+        db.query("SELECT * FROM driver WHERE id = ?", [req.user.id], function (err, rows) {
+            if (err) {
+                res.status(401).json({
+                    error: err.message
+                });
+            } else if (!rows) {
+                res.status(500).json({
+                    error: "driver didn't set his availability state nor location"
+                });
+            } else if (rows) {
+                const location = rows[0].currentArea;
+                db.query("SELECT * FROM rides WHERE fromArea = ?", [location], function (err, rows) {
+                    if (error) {
+                        res.status(500).json({
+                            error: err.message
+                        });
+                    } else {
+                        res.status(200).json({
+                            rides: rows
+                        });
+                    }
+                });
+                res.status(401).json({
+                    rides: "driver didn't set his availability state nor currentLocation"
+                });
+            }
+        });
+
+    } else {
+        res.status(401).json({
+            error: "not authorised, only drivers are authorised"
+        });
+    }
 });
 
 
 
-router.get('/user', passport.authenticate('jwt', { session: false }),  (req, res, next) => {
+router.get('/user', passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
-    if (!req.user.id){
+    if (!req.user.id) {
         res.status(500).json({
             error: "missing user id"
         })
@@ -61,36 +94,36 @@ router.get('/user', passport.authenticate('jwt', { session: false }),  (req, res
         let id = 9;
         const usernames = `SELECT * FROM users WHERE id = "${req.user.id}"`;
         db.query(usernames, (error, rows) => {
-            if (error || !rows) 
+            if (error || !rows)
                 res.status(500).json({
                     error: "error"
                 });
             if (rows)
                 res.status(200).json({
-                   user: rows[0]
+                    user: rows[0]
                 });
         });
     }
 });
 
-router.patch('/user',(req, res, next) => {
+router.patch('/user', (req, res, next) => {
     user.patchUser(req, res);
 });
 
-router.patch('/admin/user',(req, res, next) => {
+router.patch('/admin/user', (req, res, next) => {
     user.patchUserAsAdmin(req, res);
 });
 
-router.get('/admin/rides', passport.authenticate('jwt', { session: false }) ,(req, res, next) => {
+router.get('/admin/rides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     if (req.user.isAdmin) {
-        db.query("SELECT * FROM ride", function(error, rows) {
-            if (error){
+        db.query("SELECT * FROM ride", function (error, rows) {
+            if (error) {
                 res.status(500).json({
-                    error : error
+                    error: error
                 });
             } else {
                 res.status(200).json({
-                    users : rows
+                    users: rows
                 });
             }
         });
@@ -98,91 +131,137 @@ router.get('/admin/rides', passport.authenticate('jwt', { session: false }) ,(re
 
     } else {
         res.status(400).json({
-            error : "not authorized, only admins are authorized"
+            error: "not authorized, only admins are authorized"
         })
     }
 
 });
 
 
-router.get('/admin/users', passport.authenticate('jwt', { session: false }) ,(req, res, next) => {
+router.get('/admin/users', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     if (req.user.isAdmin) {
-        db.query("SELECT * FROM users", function(error, rows) {
-            if (error){
+        db.query("SELECT * FROM users", function (error, rows) {
+            if (error) {
                 res.status(500).json({
-                    error : "Couldn't reach database"
+                    error: "Couldn't reach database"
                 });
             } else {
                 res.status(200).json({
-                    users : rows
+                    users: rows
                 });
             }
         });
-
-
     } else {
         res.status(400).json({
-            error : "not authorized, only admins are authorized"
+            error: "not authorized, only admins are authorized"
         })
     }
-
 });
 
 
 
-router.patch('/driver/changestatus',(req, res, next) => {
-    const id = req.user.id;
-    const isAvailable = req.body.isAvailable;
-    if (!isAvailable) {
+router.patch('/driver/changestatus', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (!req.body.isAvailable) {
         res.status(500).json({
-            message: "Missing Requirements"
+            error: "isAvailable is missing"
         });
-        return;
-    }
-    db.query("UPDATE driver SET isAvailable = '?' WHERE id = ?",[isAvailable, id], function(err, rows) { //TODO: rider id
-        if (err)
-            res.status(500).json({
-                message: err.message
-            });
-            if (rows.affectedRows){
-                res.status(200).json({
-                    message: 'success'
-                });   
-            } else {
+    } else if (!req.user.isDriver) {
+        res.status(401).json({
+            error: "user is not a driver"
+        });
+    } else {
+        db.query("SELECT * FROM driver WHERE id = ?", [req.user.id], function (err, rows) {
+            if (err) {
                 res.status(500).json({
-                    message: 'failure'
+                    message: err.message
                 });
-            } 
-    });
+            } else if (rows) {
+                db.query("UPDATE driver SET currentArea = '?' WHERE id = ?", [req.body.isAvailable, req.user.id], function (err, rows) {
+                    if (err) {
+                        res.status(500).json({
+                            message: err.message
+                        });
+                    } else if (rows.affectedRows) {
+                        res.status(200).json({
+                            message: "update-successful"
+                        });
+                    } else {
+                        res.status(500).json({
+                            message: "I don't know what's happening here or how did you reach here put tell me if you do"
+                        });
+                    }
+                });
+            } else if (!rows) {
+                db.query("INSERT INTO driver (id , isAvailable) values (?,?)", [req.user.id, req.body.isAvailable], function (err, rows) {
+                    if (err) {
+                        res.status(500).json({
+                            status: 'update-submit-failure'
+                        });
+
+                    } else if (rows.affectedRows) {
+                        res.status(200).json({
+                            status: 'update-submit-success',
+                            message: 'Please set your current location before you can take requests'
+                        });
+                    }
+                });
+            }
+        });
+    }
 });
 
-router.patch('/driver/changelocation',(req, res, next) => {
-    const id = req.user.id;
-    const currentArea = req.body.currentArea;
-    if (!currentArea) {
+
+router.patch('/driver/changeLocation', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (!req.body.currentArea) {
         res.status(500).json({
-            message: "Missing Requirements"
+            error: "currentArea is missing"
         });
-        return;
-    }
-    db.query("UPDATE driver SET currentArea = '?' WHERE id = ?",[isAvailable, id], function(err, rows) { //TODO: rider id
-        if (err)
-            res.status(500).json({
-                message: err.message
-            });
-            if (rows.affectedRows){
-                res.status(200).json({
-                    message: 'success'
-                });   
-            } else {
+    } else if (!req.user.isDriver) {
+        res.status(401).json({
+            error: "user is not a driver"
+        });
+    } else {
+        db.query("SELECT * FROM driver WHERE id = ?", [req.user.id], function (err, rows) {
+            if (err) {
                 res.status(500).json({
-                    message: 'failure'
+                    message: err.message
                 });
-            } 
-    });
+            } else if (rows) {
+                db.query("UPDATE driver SET currentArea = '?' WHERE id = ?", [req.body.currentArea, req.user.id], function (err, rows) {
+                    if (err) {
+                        res.status(500).json({
+                            message: err.message
+                        });
+                    } else if (rows.affectedRows) {
+                        res.status(200).json({
+                            message: "update-successful"
+                        });
+                    } else {
+                        res.status(500).json({
+                            message: "I don't know what's happening here or how did you reach here put tell me if you do"
+                        });
+                    }
+                });
+            } else if (!rows) {
+                db.query("INSERT INTO driver (id , currentArea) values (?,?)", [req.user.id, req.body.currentArea], function (err, rows) {
+                    if (err) {
+                        res.status(500).json({
+                            status: 'update-submit-failure'
+                        });
+
+                    } else if (rows.affectedRows) {
+                        res.status(200).json({
+                            status: 'update-submit-success',
+                            message: 'Please set your availability before you can take requests'
+                        });
+                    }
+                });
+            }
+        });
+    }
 });
 
-router.patch('/driver/acceptRide',(req, res, next) => {
+router.patch('/driver/acceptRide', (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
@@ -191,27 +270,27 @@ router.patch('/driver/acceptRide',(req, res, next) => {
         });
         return;
     }
-    db.query("UPDATE ride SET driver = ?, rideStatus = A WHERE rideNo = ?", 
-    [driverid ,rideNo],
-    function(err, rows) { 
-        if (err)
-            res.status(500).json({
-                message: err.message
-            });
-            if (rows.affectedRows){
+    db.query("UPDATE ride SET driver = ?, rideStatus = A WHERE rideNo = ?",
+        [driverid, rideNo],
+        function (err, rows) {
+            if (err)
+                res.status(500).json({
+                    message: err.message
+                });
+            if (rows.affectedRows) {
                 res.status(200).json({
                     message: 'update-submit-success'
-                });   
+                });
             } else {
                 res.status(500).json({
                     message: 'update-submit-failure'
                 });
-            } 
-    });
+            }
+        });
 });
 
 
-router.patch('/driver/endtrip',(req, res, next) => {
+router.patch('/driver/endtrip', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
@@ -220,40 +299,40 @@ router.patch('/driver/endtrip',(req, res, next) => {
         });
         return;
     }
-    db.query("UPDATE ride SET rideStatus = A WHERE rideNo = ?",[rideNo], function(err, rows) { //TODO: rider id
-        if (err){
+    db.query("UPDATE ride SET rideStatus = A WHERE rideNo = ?", [rideNo], function (err, rows) { //TODO: rider id
+        if (err) {
             res.status(500).json({
                 message: err.message
             });
             return;
         }
-        if (rows.affectedRows){
-            db.query("SELECT rider FROM ride WHERE rideNo = ?", [rideNo] ,function(err, rows){
-                if (err || !rows){
+        if (rows.affectedRows) {
+            db.query("SELECT rider FROM ride WHERE rideNo = ?", [rideNo], function (err, rows) {
+                if (err || !rows) {
                     res.status(500).json({
                         message: 'update-submit-failure'
                     });
                     return;
                 } else {
-                    db.query("INSERT INTO transaction (toUser ,fromUser, 143) values (?,?)", [driverid, rows[0].rider], function(err, rows){
-                        if (err){
+                    db.query("INSERT INTO transaction (toUser ,fromUser, 143) values (?,?)", [driverid, rows[0].rider], function (err, rows) {
+                        if (err) {
                             res.status(200).json({
                                 message: 'update-submit-success'
-                            }); 
+                            });
                             return;
                         }
                     });
                 }
-            }); 
+            });
         } else {
             res.status(500).json({
                 message: 'update-submit-failure'
             });
-        } 
+        }
     });
 });
 
-router.patch('/driver/cancelTrip',(req, res, next) => {
+router.patch('/driver/cancelTrip', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
@@ -262,41 +341,41 @@ router.patch('/driver/cancelTrip',(req, res, next) => {
         });
         return;
     }
-    db.query("UPDATE ride SET rideStatus = A WHERE rideNo = ?",[rideNo], function(err, rows) { //TODO: rider id
-        if (err){
+    db.query("UPDATE ride SET rideStatus = A WHERE rideNo = ?", [rideNo], function (err, rows) { //TODO: rider id
+        if (err) {
             res.status(500).json({
                 message: err.message
             });
             return;
         }
-        if (rows.affectedRows){
-            db.query("SELECT rider FROM ride WHERE rideNo = ?", [rideNo] ,function(err, rows){
-                if (err || !rows){
+        if (rows.affectedRows) {
+            db.query("SELECT rider FROM ride WHERE rideNo = ?", [rideNo], function (err, rows) {
+                if (err || !rows) {
                     res.status(500).json({
                         message: 'update-submit-failure'
                     });
                     return;
                 } else {
-                    db.query("INSERT INTO transaction (fromUser ,toUser, 10) values (?,?)", [driverid, rows[0].rider], function(err, rows){
-                        if (err){
+                    db.query("INSERT INTO transaction (fromUser ,toUser, 10) values (?,?)", [driverid, rows[0].rider], function (err, rows) {
+                        if (err) {
                             res.status(200).json({
                                 message: 'update-submit-success'
-                            }); 
+                            });
                             return;
                         }
                     });
                 }
-            }); 
+            });
         } else {
             res.status(500).json({
                 message: 'update-submit-failure'
             });
-        } 
+        }
     });
 });
 
 
-router.post('/admin/transaction',(req, res, next) => {
+router.post('/admin/transaction', passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
     const isAdmin = req.user.isAdmin;
     const toUser = req.body.toUser;
@@ -314,11 +393,11 @@ router.post('/admin/transaction',(req, res, next) => {
         if (error) {
             res.status(500).json({
                 error: error
-            }); 
+            });
         } else {
             res.status(200).json({
                 rows: rows
-            }); 
+            });
 
         }
     });
