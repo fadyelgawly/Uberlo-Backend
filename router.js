@@ -65,16 +65,19 @@ router.get('/getavailablerides', passport.authenticate('jwt', { session: false }
         db.query("SELECT * FROM driver WHERE id = ?", [req.user.id], function (err, rows) {
             if (err) {
                 res.status(401).json({
-                    error: err.message
+                    err: err.message
                 });
             } else if (!rows[0]) {
                 res.status(500).json({
                     error: "driver didn't set his availability state nor location"
                 });
             } else if (rows[0]) {
+
+
+                
                 const location = rows[0].currentArea;
                 db.query("SELECT * FROM rides WHERE fromArea = ?", [location], function (err, rows) {
-                    if (error) {
+                    if (err) {
                         res.status(500).json({
                             error: err.message
                         });
@@ -83,6 +86,9 @@ router.get('/getavailablerides', passport.authenticate('jwt', { session: false }
                             rides: rows
                         });
                     }
+                });
+                res.status(401).json({
+                    rides: "driver didn't set his availability state nor currentLocation"
                 });
             }
         });
