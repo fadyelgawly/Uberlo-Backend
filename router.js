@@ -45,6 +45,21 @@ router.get('/getuserrides', (req, res, next) => {
     rideHandle.getuserrides(req.body, res);
 });
 
+router.get('/getrequestedride', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    const id = req.user.id;
+    db.query('SELECT * FROM rides WHERE rider = ? AND rideStatus != `D` AND rideStatus != `C`', [id], (err,rows) => {
+        if (err){
+            res.status(500).json({
+                error: err.message
+            });
+        } else {
+            res.status(200).json({
+                ride: rows[0]
+            });
+        }
+    });
+});
+
 router.get('/getavailablerides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     if (req.user.isDriver) {
         db.query("SELECT * FROM driver WHERE id = ?", [req.user.id], function (err, rows) {
