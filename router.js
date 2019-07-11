@@ -67,7 +67,7 @@ router.get('/getavailablerides', passport.authenticate('jwt', { session: false }
                 res.status(401).json({
                     error: err.message
                 });
-            } else if (!rows) {
+            } else if (!rows[0]) {
                 res.status(500).json({
                     error: "driver didn't set his availability state nor location"
                 });
@@ -296,6 +296,11 @@ router.patch('/driver/acceptRide', (req, res, next) => {
                 res.status(200).json({
                     message: 'update-submit-success'
                 });
+
+                //notify user
+                
+
+
             } else {
                 res.status(500).json({
                     message: 'update-submit-failure'
