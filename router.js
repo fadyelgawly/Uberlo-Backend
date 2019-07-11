@@ -186,15 +186,11 @@ router.patch('/driver/changestatus', passport.authenticate('jwt', { session: fal
         });
     } else {
         db.query("SELECT * FROM driver WHERE id = ?", [req.user.id], function (err, rows) {
-            res.status(402).json({
-                rows:rows
-            });
-
             if (err) {
                 res.status(500).json({
                     message: err.message
                 });
-            } else if (rows) {
+            } else if (rows[0]) {
                 db.query("UPDATE driver SET isAvailable = ? WHERE id = ?", [req.body.isAvailable, req.user.id], function (err, rows) {
                     if (err) {
                         res.status(500).json({
@@ -206,7 +202,7 @@ router.patch('/driver/changestatus', passport.authenticate('jwt', { session: fal
                         });
                     } else {
                         res.status(500).json({
-                            message: rows
+                            message: "I don't think you should come here"
                         });
                     }
                 });
