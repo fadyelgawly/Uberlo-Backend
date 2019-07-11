@@ -241,8 +241,8 @@ router.patch('/driver/changeLocation', passport.authenticate('jwt', { session: f
                 res.status(500).json({
                     message: err.message
                 });
-            } else if (rows) {
-                db.query("UPDATE driver SET currentArea = '?' WHERE id = ?", [req.body.currentArea, req.user.id], function (err, rows) {
+            } else if (rows[0]) {
+                db.query("UPDATE driver SET currentArea = ? WHERE id = ?", [req.body.currentArea, req.user.id], function (err, rows) {
                     if (err) {
                         res.status(500).json({
                             message: err.message
@@ -257,7 +257,7 @@ router.patch('/driver/changeLocation', passport.authenticate('jwt', { session: f
                         });
                     }
                 });
-            } else if (!rows) {
+            } else if (!rows[0]) {
                 db.query("INSERT INTO driver (id , currentArea) values (?,?)", [req.user.id, req.body.currentArea], function (err, rows) {
                     if (err) {
                         res.status(500).json({
