@@ -186,6 +186,10 @@ router.patch('/driver/changestatus', passport.authenticate('jwt', { session: fal
         });
     } else {
         db.query("SELECT * FROM driver WHERE id = ?", [req.user.id], function (err, rows) {
+            res.status(402).json({
+                rows:rows
+            });
+
             if (err) {
                 res.status(500).json({
                     message: err.message
