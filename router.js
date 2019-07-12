@@ -285,7 +285,7 @@ router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: fals
         });
         return;
     }
-    db.query("UPDATE ride SET driver = ?, rideStatus = A WHERE rideNo = ?",
+    db.query("UPDATE ride SET driver = ?, rideStatus = 'A' WHERE rideNo = ?",
         [driverid, rideNo],
         function (err, rows) {
             if (err)
