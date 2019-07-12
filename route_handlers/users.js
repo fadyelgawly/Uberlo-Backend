@@ -3,7 +3,6 @@ const db = require('../database');
 
 
 exports.patchUserAsAdmin = (req, res) => {
-  const id = req.user.id;
   const isAdminUser = req.user.isAdmin;
 
   if (!isAdminUser){
@@ -20,7 +19,7 @@ exports.patchUserAsAdmin = (req, res) => {
   const isDriver = req.body.isDriver;
   const isRemoved = req.body.isRemoved;
 
-  db.query('UPDATE users SET firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ?WHERE id = ?;',
+  db.query('UPDATE users SET firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ? WHERE id = ?;',
         [firstname, lastname, phone, isAdmin, isDriver, isRemoved], function(error, rows) {
           if (error){
             res.status(500).json({
@@ -28,7 +27,7 @@ exports.patchUserAsAdmin = (req, res) => {
             });
           } else if (rows.affectedRows){
             res.status(200).json({
-              update: "sucess"
+              update: "success"
             });
           }
         });
@@ -42,14 +41,14 @@ exports.patchUser = (req, res) => {
   const phone = req.body.phone;
 
   db.query('UPDATE users SET firstname = ?, lastname = ?, phone = ? WHERE id = ?;',
-        [firstname, lastname, phone], function(error, rows) {
+        [firstname, lastname, phone , id], function(error, rows) {
           if (error){
             res.status(500).json({
               error: error
             });
           } else if (rows.affectedRows){
             res.status(200).json({
-              update: "sucess"
+              update: "success"
             });
           }
         });
