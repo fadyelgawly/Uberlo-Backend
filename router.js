@@ -276,7 +276,7 @@ router.patch('/driver/changeLocation', passport.authenticate('jwt', { session: f
     }
 });
 
-router.patch('/driver/acceptRide', (req, res, next) => {
+router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
