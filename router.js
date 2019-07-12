@@ -309,8 +309,7 @@ router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: fals
         });
 });
 
-
-router.patch('/driver/endtrip', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.patch('/driver/starttrip',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
@@ -319,39 +318,63 @@ router.patch('/driver/endtrip', passport.authenticate('jwt', { session: false })
         });
         return;
     }
-    db.query("UPDATE ride SET rideStatus = A WHERE rideNo = ?", [rideNo], function (err, rows) { //TODO: rider id
-        if (err) {
-            res.status(500).json({
-                message: err.message
-            });
-            return;
-        }
-        if (rows.affectedRows) {
-            db.query("SELECT rider FROM ride WHERE rideNo = ?", [rideNo], function (err, rows) {
-                if (err || !rows) {
-                    res.status(500).json({
-                        message: 'update-submit-failure'
-                    });
-                    return;
-                } else {
-                    db.query("INSERT INTO transaction (toUser ,fromUser, 143) values (?,?)", [driverid, rows[0].rider], function (err, rows) {
-                        if (err) {
-                            res.status(200).json({
-                                message: 'update-submit-success'
-                            });
-                            return;
-                        }
-                    });
-                }
-            });
-        } else {
-            res.status(500).json({
-                message: 'update-submit-failure'
-            });
-        }
-    });
+    db.query("UPDATE ride SET driver = ?, rideStatus = 'S' WHERE rideNo = ?",
+        [driverid, rideNo],
+        function (err, rows) {
+            if (err)
+                res.status(500).json({
+                    message: err.message
+                });
+            if (rows.affectedRows) {
+                res.status(200).json({
+                    message: 'update-submit-success'
+                });
+
+                //notify user
+                
+
+
+            } else {
+                res.status(500).json({
+                    message: 'update-submit-failure'
+                });
+            }
+        });
 });
 
+
+router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    const driverid = req.user.id
+    const rideNo = req.body.rideNo;
+    if (!rideNo) {
+        res.status(500).json({
+            message: "Missing Requirements"
+        });
+        return;
+    }
+    db.query("UPDATE ride SET driver = ?, rideStatus = 'E' WHERE rideNo = ?",
+        [driverid, rideNo],
+        function (err, rows) {
+            if (err)
+                res.status(500).json({
+                    message: err.message
+                });
+            if (rows.affectedRows) {
+                res.status(200).json({
+                    message: 'update-submit-success'
+                });
+
+                //notify user
+                
+
+
+            } else {
+                res.status(500).json({
+                    message: 'update-submit-failure'
+                });
+            }
+        });
+});
 router.patch('/driver/cancelTrip', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
