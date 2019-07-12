@@ -44,9 +44,9 @@ exports.signup = (parameters, res) => {
         lastname = parameters.lastname,
         phone = parameters.phone,
         isDriver = parameters.isDriver;
-    if (!(username && password && firstname && lastname && phone && isDriver)){
+    if (!(username && password && firstname && lastname && phone)){
         res.status(500).json({error : "missing requirement(s)",
-                            expected : "username && password && firstname && lastname && phone && isDriver"
+                            expected : "username && password && firstname && lastname && phone"
                             });
                             return;
     }
