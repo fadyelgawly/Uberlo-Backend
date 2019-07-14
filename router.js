@@ -4,7 +4,13 @@ var authorization = require('./route_handlers/authorization');
 var rideHandle = require('./route_handlers/rideHandler');
 var passport = require('passport');
 var user = require('./route_handlers/users');
-var db = require('./database')
+var db = require('./database');
+
+const accountSid = 'ACa7aeb5e7e2bb26fd1f5554417a0052d6';
+const authToken = 'b73b114704f25d2f95a8e83d34e7a791';
+const client = require('twilio')(accountSid, authToken);
+
+
 
 
 const axios = require('axios');
@@ -17,18 +23,13 @@ router.all('/', (req, res) => {
 router.post('/signup', (req, res) => {
     authorization.signup(req.body, res);
 
-    // Make a request for a user with a given ID
-    // axios.get('http://panel.smspm.com/gateway/80fef672638b44db90ef06a9b06a6abd534ee362/api.v1/send' ,{
-    //     params: {
-    //         sender: "Uberlo",
-    //         phone: "201000922522",
-    //         message: "Welcome to Uberlo. Happy riding.",
-    //         output: "json"
-    //       }
-    // })
-    // .then(function (response) {
-    //     console.log(response.data);
-    // });
+    client.messages
+    .create({
+     body: 'Welcome to Uberlo',
+     from: '+15017122661',
+     to: req.body.phone
+   })
+  .then(message => console.log(message.sid));
 
 });
 
