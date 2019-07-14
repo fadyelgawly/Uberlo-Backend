@@ -430,11 +430,16 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
                         [rows[0].driver, rows[0].rider],
                          function (err, rows) {
                             if (err) {
-                                res.status(200).json({
-                                    message: 'update-submit-success'
+                                res.status(500).json({
+                                    message: err.message
                                 });
 
                                 return;
+                            } else {
+                                res.status(500).json({
+                                    message: 'success'
+                                });
+
                             }
                         });
                         
