@@ -295,12 +295,10 @@ router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: fals
                 res.status(500).json({
                     message: err.message
                 });
-            if (rows.affectedRows) {
+            else if (rows.affectedRows) {
                 res.status(200).json({
                     message: 'update-submit-success'
                 });
-
-                //notify user
 
             } else {
                 res.status(500).json({
@@ -309,9 +307,6 @@ router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: fals
             }
         });
     }        
-    res.status(500).json({
-        message: 'Not sure what happened'
-    });
 });
 
 router.patch('/driver/starttrip',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
