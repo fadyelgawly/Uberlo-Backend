@@ -370,7 +370,7 @@ router.patch('/driver/arrive',  passport.authenticate('jwt', { session: false })
         });
 });
 
-router.patch('/rider/cancel',  
+router.patch('/driver/cancel',  
     passport.authenticate('jwt', { session: false }),
     (req, res, next) => {
 
@@ -402,17 +402,12 @@ router.patch('/rider/cancel',
 });
 
 
-router.patch('/driver/cancel',  
+router.patch('/rider/cancel',  
     passport.authenticate('jwt', { session: false }),
     (req, res, next) => {
 
-    if (!rideNo) {
-        res.status(500).json({
-            message: "Missing Requirements"
-        });
-        return;
-    }
-    db.query("UPDATE ride SET rideStatus = ? WHERE rider = ? AND rideStatus = ? AND rideStatus = ? AND rideStatus = ?", ['C' ,req.user.id, 'R', 'A', 'V'], function (err, rows) {
+
+    db.query("UPDATE ride SET rideStatus = ? WHERE rider = ? AND rideStatus = ? OR rideStatus = ? OR rideStatus = ?", ['C' ,req.user.id, 'R', 'A', 'V'], function (err, rows) {
         if (err) {
             res.status(500).json({
                 message: err.message
