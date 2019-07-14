@@ -282,12 +282,12 @@ router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: fals
     const rideNo = req.body.rideNo;
     if (!rideNo) {
         res.status(500).json({
-            message: "Missing Requirements"
+            message: "Missing rideNo"
         });
         return;
     }
-    db.query("UPDATE ride SET driver = ?, rideStatus = 'A' WHERE rideNo = ?",
-        [driverid, rideNo],
+    db.query("UPDATE ride SET driver = ?, rideStatus =  WHERE rideNo = ?",
+        [driverid,'A', rideNo],
         function (err, rows) {
             if (err)
                 res.status(500).json({
@@ -306,6 +306,9 @@ router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: fals
                 });
             }
         });
+    res.status(500).json({
+        message: 'Not sure what happened'
+    });
 });
 
 router.patch('/driver/starttrip',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
