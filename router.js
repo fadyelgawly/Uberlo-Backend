@@ -123,7 +123,7 @@ router.get('/user', passport.authenticate('jwt', { session: false }), (req, res,
     }
 });
 
-router.patch('/user', (req, res, next) => {
+router.patch('/user',passport.authenticate('jwt', { session: false }),  (req, res, next) => {
     user.patchUser(req, res);
 });
 
