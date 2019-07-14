@@ -419,8 +419,7 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
                 });
             if (rows.affectedRows) {
 
-
-                db.query('SELECT * FROM ride WHERE rider = ?', [rideNo], (err,rows) => {
+                db.query('SELECT * FROM ride WHERE rideNo = ?', [rideNo], (err,rows) => {
                     if (err){
                         res.status(500).json({
                             error: err.message
