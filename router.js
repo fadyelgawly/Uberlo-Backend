@@ -436,7 +436,7 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
 
                                 return;
                             } else {
-                                res.status(500).json({
+                                res.status(200).json({
                                     message: 'success'
                                 });
 
