@@ -410,7 +410,7 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
         });
         return;
     }
-    db.query("UPDATE ride rideStatus = ? WHERE rideNo = ?",
+    db.query("UPDATE ride SET rideStatus = ? WHERE rideNo = ?",
         ['E' ,rideNo],
         function (err, rows) {
             if (err)
