@@ -27,7 +27,7 @@ router.post('/signup', (req, res) => {
     .create({
      body: 'Welcome to Uberlo',
      from: '+15017122661',
-     to: req.body.phone
+     to: '+201000922522'
    })
   .then(message => console.log(message.sid));
 
