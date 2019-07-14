@@ -384,7 +384,7 @@ router.patch('/driver/cancel',  passport.authenticate('jwt', { session: false })
         return;
     }
     db.query("UPDATE ride SET rideStatus = 'D' WHERE rideNo = ?",
-        [driverid, rideNo],
+        [rideNo],
         function (err, rows) {
             if (err)
                 res.status(500).json({
