@@ -513,4 +513,85 @@ router.post('/admin/transaction', passport.authenticate('jwt', { session: false 
     });
 });
 
+
+router.patch('/user/rate', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if(req.body.rate && req.body.rideNo){
+        db.query('UPDATE ride SET driverRate = ? WHERE rideNo = ? AND rider = ? ', [req.body.rate, req.body.rideNo, req.user.id] ,function (err, rows) {
+            if (err){
+                res.status(500).json({
+                    message: err.message
+                });
+            } else if (rows.affectedRows) {
+                res.status(500).json({
+                    update: 'success'
+                });
+            } else {
+                es.status(500).json({
+                    message: 'Database was not updated'
+                });
+            }
+        });
+    } else if (!req.body.rate) {
+        res.status(500).json({
+            message: "Expected rate value from 1 to 5"
+        });
+    } else if (!req.body.rideNo) {
+        res.status(500).json({
+            message: "Expected rideNo"
+        });
+    } 
+});
+
+router.patch('/driver/rate', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if(req.body.rate && req.body.rideNo){
+        db.query('UPDATE ride SET riderRate = ? WHERE rideNo = ? AND driver = ? ', [req.body.rate, req.body.rideNo, req.user.id] ,function (err, rows) {
+            if (err){
+                res.status(500).json({
+                    message: err.message
+                });
+            } else if (rows.affectedRows) {
+                res.status(500).json({
+                    update: 'success'
+                });
+            } else {
+                es.status(500).json({
+                    message: 'Database was not updated'
+                });
+            }
+        });
+    } else if (!req.body.rate) {
+        res.status(500).json({
+            message: "Expected rate value from 1 to 5"
+        });
+    } else if (!req.body.rideNo) {
+        res.status(500).json({
+            message: "Expected rideNo"
+        });
+    } 
+});
+
+router.post('/user/changepassword', passport.authenticate('jwt', {session: false }), (req,res,next) =>{
+    authorization.changepassword(req.body, res);
+})
+
+
+router.post('/ridesummary', passport.authenticate('jwt', {session: false }), (req, res, next) => {
+    if(req.body.rideNo) {
+        db.query('SELECT fromArea, toArea, fare FROM ride WHERE rider = ? OR driver = ?', [req.user.id, req.user.id], (err, rows) => {
+            if (err){
+                res.status(500).json({
+                    message: err.message
+                });
+            } else {
+                res.status(200).json({
+                    ride: rows[0]
+                });
+            }
+        });
+    } else {
+        res.status(500).json({
+            message: 'Missing rideNo'
+        });
+    }
+});
 module.exports = router;
