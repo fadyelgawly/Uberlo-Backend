@@ -211,7 +211,7 @@ router.patch('/driver/changestatus', passport.authenticate('jwt', { session: fal
                 db.query("INSERT INTO driver (id , isAvailable) values (?,?)", [req.user.id, req.body.isAvailable], function (err, rows) {
                     if (err) {
                         res.status(500).json({
-                            status: 'update-submit-failure'
+                            status: err.message
                         });
 
                     } else if (rows.affectedRows) {
@@ -438,22 +438,15 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
                                 res.status(200).json({
                                     message: 'update-submit-success'
                                 });
+
                                 return;
                             }
                         });
                         
                     }
-                });
-                ////////
+                });                
 
-                
-
-                res.status(200).json({
-                    message: 'update-submit-success'
-                });
-
-                //notify user
-                
+  
 
 
             } else {
