@@ -426,7 +426,7 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
                         });
                     } else {
 
-                        db.query("INSERT INTO transaction (fromUser ,toUser, 50) values (?,?)", 
+                        db.query("INSERT INTO transaction (fromUser ,toUser, amount) values (?,?, 50)", 
                         [rows[0].driver, rows[0].rider],
                          function (err, rows) {
                             if (err) {
