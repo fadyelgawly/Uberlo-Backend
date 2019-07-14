@@ -278,7 +278,6 @@ router.patch('/driver/changeLocation', passport.authenticate('jwt', { session: f
 });
 
 router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
         res.status(500).json({
@@ -350,8 +349,8 @@ router.patch('/driver/arrive',  passport.authenticate('jwt', { session: false })
         });
         return;
     }
-    db.query("UPDATE ride SET driver = ?, rideStatus = 'V' WHERE rideNo = ?",
-        [driverid, rideNo],
+    db.query("UPDATE ride SET rideStatus = ? WHERE rideNo = ?",
+        ['V', rideNo],
         function (err, rows) {
             if (err)
                 res.status(500).json({
@@ -361,11 +360,6 @@ router.patch('/driver/arrive',  passport.authenticate('jwt', { session: false })
                 res.status(200).json({
                     message: 'update-submit-success'
                 });
-
-                //notify user
-                
-
-
             } else {
                 res.status(500).json({
                     message: 'update-submit-failure'
@@ -374,7 +368,9 @@ router.patch('/driver/arrive',  passport.authenticate('jwt', { session: false })
         });
 });
 
-router.patch('/driver/cancel',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.patch('/driver/cancel',  
+    passport.authenticate('jwt', { session: false }),
+    (req, res, next) => {
 
     const rideNo = req.body.rideNo;
     if (!rideNo) {
@@ -383,26 +379,24 @@ router.patch('/driver/cancel',  passport.authenticate('jwt', { session: false })
         });
         return;
     }
-    db.query("UPDATE ride SET rideStatus = 'D' WHERE rideNo = ?",
-        [rideNo],
-        function (err, rows) {
-            if (err)
-                res.status(500).json({
-                    message: err.message
-                });
-            if (rows.affectedRows) {
-                res.status(200).json({
-                    message: 'update-submit-success'
-                });
+    db.query("UPDATE ride SET rideStatus = ? WHERE rideNo = ?", ['D' ,rideNo], function (err, rows) {
+        if (err) {
+            res.status(500).json({
+                message: err.message
+            });
+        }
+        else if (rows.affectedRows) {
 
-                //notify user
-                
-            } else {
-                res.status(500).json({
-                    message: 'update-submit-failure'
-                });
-            }
-        });
+            res.status(200).json({
+                message: 'success'
+            });
+            
+        } else {
+            res.status(500).json({
+                message: 'failure'
+            });
+        }
+    });
 });
 
 
@@ -414,8 +408,8 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
         });
         return;
     }
-    db.query("UPDATE ride rideStatus = 'E' WHERE rideNo = ?",
-        [rideNo],
+    db.query("UPDATE ride rideStatus = ? WHERE rideNo = ?",
+        ['E' ,rideNo],
         function (err, rows) {
             if (err)
                 res.status(500).json({
