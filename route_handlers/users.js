@@ -16,15 +16,16 @@ exports.patchUserAsAdmin = (req, res) => {
     return;
   }
   const id = req.body.user.id
-  const firstname = req.body.user.firstname;
-  const lastname = req.body.user.lastname;
-  const phone = req.body.user.phone;
-  const isAdmin = req.body.user.isAdmin;
-  const isDriver = req.body.user.isDriver;
-  const isRemoved = req.body.user.isRemoved;
+  const firstname = req.body.firstname;
+  const username = req.body.username;
+  const lastname = req.body.lastname;
+  const phone = req.body.phone;
+  const isAdmin = req.body.isAdmin;
+  const isDriver = req.body.isDriver;
+  const isRemoved = req.body.isRemoved;
 
-  db.query('UPDATE users SET firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ? WHERE id = ?',
-                              [firstname, lastname, phone, isAdmin, isDriver, isRemoved, id], function(error, rows) {
+  db.query('UPDATE users SET username = ?, firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ? WHERE id = ?',
+                              [username, firstname, lastname, phone, isAdmin, isDriver, isRemoved, id], function(error, rows) {
           if (error){
             res.status(500).json({
               error: error
