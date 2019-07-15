@@ -124,7 +124,7 @@ exports.login = (parameters, res) => {
 
 exports.changepassword = (req, res) => {
 
-    const id = req.user.username;
+    const id = req.user.id;
     const oldPassword = bcrypt.hashSync(req.body.oldPassword, null, null);
     const newPassword = bcrypt.hashSync(req.body.newPassword, null, null);
 
