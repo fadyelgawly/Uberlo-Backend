@@ -628,7 +628,7 @@ router.post('/user/forgot/code', (req, res, next) => {
         });
 });
 
-router.post('/user/forgot/reset', passport.authenticate('jwt', {session: false }), (req, res, next) => {
+router.post('/user/forgot/reset',  (req, res, next) => {
     const code = 9999;//(Math.random() * 9999);
     const username = req.body.username;
     const password = bcrypt.hashSync(req.body.password, null, null);
