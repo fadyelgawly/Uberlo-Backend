@@ -119,3 +119,32 @@ exports.login = (parameters, res) => {
         res.status(500).json({ error: 'No credentials'});
     }
 }
+
+exports.changepassword = (parameters, res) => {
+
+    const username = parameters.username;
+    const password = parameters.password;
+
+    if (username && password) {
+        const queryStatement = `SELECT * FROM users WHERE username = "${username}"`;
+        database.query(queryStatement, (error, rows) =>{
+            if (error)
+                res.status(401).json({ error:error });
+            else
+                if (!rows.length)
+                    res.status(401).json({ message: 'Invalid credentials'});
+                else if (bcrypt.compareSync(password, rows[0].password)){
+                    let payload = { id: rows[0].id };
+                    let token = jwt.sign(payload, jwtOptions.secretOrKey);
+                    res.status(200).json({  msg: 'ok',
+                                            token: token,
+                                            user: rows[0]
+                                         });
+                } else {
+                    res.status(500).json({ error: 'Incorrect password'});
+                }
+        })
+    } else {
+        res.status(500).json({ error: 'No credentials'});
+    }
+}

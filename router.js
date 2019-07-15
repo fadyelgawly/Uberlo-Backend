@@ -571,7 +571,7 @@ router.patch('/driver/rate', passport.authenticate('jwt', { session: false }), (
 });
 
 router.post('/user/changepassword', passport.authenticate('jwt', {session: false }), (req,res,next) =>{
-    authorization.changepassword(req.body, res);
+    authorization.changepassword(req, res);
 })
 
 
