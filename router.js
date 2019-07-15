@@ -6,6 +6,8 @@ var passport = require('passport');
 var user = require('./route_handlers/users');
 var db = require('./database');
 
+const bcrypt = require('bcrypt-nodejs');
+
 const accountSid = 'ACa7aeb5e7e2bb26fd1f5554417a0052d6';
 const authToken = 'b73b114704f25d2f95a8e83d34e7a791';
 const client = require('twilio')(accountSid, authToken);
@@ -629,9 +631,11 @@ router.post('/user/forgot/code', (req, res, next) => {
 });
 
 router.post('/user/forgot/reset',  (req, res, next) => {
+  
     const code = 9999;//(Math.random() * 9999);
     const username = req.body.username;
     const password = bcrypt.hashSync(req.body.password, null, null);
+    var id;
     if(code && username && password){
         db.query('SELECT id FROM users WHERE username = ?', [username], (err,rows) => {
             if(err){
@@ -639,20 +643,22 @@ router.post('/user/forgot/reset',  (req, res, next) => {
             } else if (!rows[0]){
                 res.status(500).json({ error: 'Cannot retrieve user'});
             } else {
-   
-                if (code === '9999'){
-                    db.query("UPDATE users SET password = ? WHERE id = ?", [password, rows[0].id], function (err, rows) {
+                id = rows[0].id
+                console.log(rows);
+                console.log(code === 9999);
+                if (code === 9999){
+                    db.query("UPDATE users SET password = ? WHERE id = ?", [password, id], function (err, rows) {
                         if (err) {
                             res.status(500).json({ error: error.message });
                         } else if (rows.affectedRows) {
-                            db.query("INSERT INTO password ( userID, passwordHash, changedBy) values (?,?,?)", [id, newPassword, id],
+                            db.query("INSERT INTO password ( userID, passwordHash, changedBy) values (?,?,?)", [id, password, id],
                                 function (err, rows) {
                                     if (err || !rows.affectedRows) {
                                         res.status(500).json({
                                             update: 'success',
                                             message: 'Record was not saved',
                                             sql: err.message
-                                        });
+                                        });// e97f3JgHjg
                                     } else {
                                         res.status(200).json({ message: 'success' });
                                     }
