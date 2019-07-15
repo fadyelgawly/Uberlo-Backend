@@ -596,7 +596,7 @@ router.post('/ridesummary', passport.authenticate('jwt', {session: false }), (re
 });
 
 
-router.post('/user/forgot/code', passport.authenticate('jwt', {session: false }), (req, res, next) => {
+router.post('/user/forgot/code', (req, res, next) => {
     const code = 9999;//(Math.random() * 9999);
     const username = req.body.username;
 
@@ -626,6 +626,19 @@ router.post('/user/forgot/code', passport.authenticate('jwt', {session: false })
 
             }
         });
-
 });
+
+router.post('/user/forgot/reset', passport.authenticate('jwt', {session: false }), (req, res, next) => {
+    const code = 9999;//(Math.random() * 9999);
+    const username = req.body.username;
+    const password = req.body.password;
+    if(code && username && password){
+
+
+    } else {
+        res.status(500).json({message : 'Missing requirements'})
+    }
+});
+
+
 module.exports = router;
