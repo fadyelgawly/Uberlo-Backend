@@ -141,6 +141,7 @@ exports.changepassword = (req, res) => {
 
                 console.log(rows[0].password);
                 console.log(rows);
+                console.log((bcrypt.compareSync(oldPassword, rows[0].password));
                 if (bcrypt.compareSync(oldPassword, rows[0].password)) {
                     database.query("UPDATE user SET password = ? WHERE id = ?", [newPassword, id], function (err, rows) {
                         if (err) {
