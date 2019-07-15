@@ -601,7 +601,7 @@ router.post('/user/forgot/code', (req, res, next) => {
     const username = req.body.username;
 
     const queryStatement = `SELECT * FROM users WHERE username = "${username}"`;
-        database.query(queryStatement, (error, rows) => {
+        db.query(queryStatement, (error, rows) => {
             if (error){
                 res.status(500).json({ message : error.message });
             } else if (!rows) {
