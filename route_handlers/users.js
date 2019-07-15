@@ -5,17 +5,8 @@ const db = require('../database');
 exports.patchUserAsAdmin = (req, res) => {
 
 
-  console.log("hiii");
-  const isAdminUser = req.user.isAdmin;
 
-  console.log("hiii");
-  if (!isAdminUser){
-    res.status(500).json({
-      error: "Only admin are allowed to use this update function"
-    })
-    return;
-  }
-  const id = req.body.user.id
+  const id = req.body.id
   const firstname = req.body.firstname;
   const username = req.body.username;
   const lastname = req.body.lastname;
@@ -23,19 +14,28 @@ exports.patchUserAsAdmin = (req, res) => {
   const isAdmin = req.body.isAdmin;
   const isDriver = req.body.isDriver;
   const isRemoved = req.body.isRemoved;
+  const isAdminUser = req.user.isAdmin;
 
+  if (!isAdminUser) {
+    res.status(500).json({
+      error: "Only admin are allowed to use this update function"
+    })
+    return;
+  }
   db.query('UPDATE users SET username = ?, firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ? WHERE id = ?',
-                              [username, firstname, lastname, phone, isAdmin, isDriver, isRemoved, id], function(error, rows) {
-          if (error){
-            res.status(500).json({
-              error: error
-            });
-          } else if (rows.affectedRows){
-            res.status(200).json({
-              update: "success"
-            });
-          }
+    [username, firstname, lastname, phone, isAdmin, isDriver, isRemoved, id],
+    function (error, rows) {
+      if (error) {
+        res.status(500).json({
+          error: error
         });
+      } else if (rows.affectedRows) {
+
+        res.status(200).json({
+          update: "success"
+        });
+      }
+    });
 }
 
 
@@ -46,15 +46,15 @@ exports.patchUser = (req, res) => {
   const phone = req.body.phone;
 
   db.query('UPDATE users SET firstname = ?, lastname = ?, phone = ? WHERE id = ?;',
-        [firstname, lastname, phone , id], function(error, rows) {
-          if (error){
-            res.status(500).json({
-              error: error
-            });
-          } else if (rows.affectedRows){
-            res.status(200).json({
-              update: "success"
-            });
-          }
+    [firstname, lastname, phone, id], function (error, rows) {
+      if (error) {
+        res.status(500).json({
+          error: error
         });
+      } else if (rows.affectedRows) {
+        res.status(200).json({
+          update: "success"
+        });
+      }
+    });
 }
