@@ -596,5 +596,36 @@ router.post('/ridesummary', passport.authenticate('jwt', {session: false }), (re
 });
 
 
-router.post
+router.post('/user/forgot/code', passport.authenticate('jwt', {session: false }), (req, res, next) => {
+    const code = 9999;//(Math.random() * 9999);
+    const username = req.body.username;
+
+    const queryStatement = `SELECT * FROM users WHERE username = "${username}"`;
+        database.query(queryStatement, (error, rows) => {
+            if (error){
+                res.status(500).json({ message : error.message });
+            } else if (!rows) {
+                res.status(500).json({error : 'username doesnt exist'});
+            } else if (rows[0]) {
+                database.query('INSERT resetcode (userID, code) values(?, ?', [rows[0].id, code], (err, rows) => {
+                    if (err){
+                        res.status(500).json({ error : err.message});
+                    } else {
+
+                        client.messages
+                        .create({
+                         body: `Code is ${code}`,
+                         from: '+15017122661',
+                         to: '+201000922522'
+                       })
+                      .then(message => console.log(message.sid));
+                      res.status(200).json({ codeSent: 'success'});
+                        
+                    }
+                });
+
+            }
+        });
+
+});
 module.exports = router;

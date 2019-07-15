@@ -128,7 +128,7 @@ exports.changepassword = (req, res) => {
 
 
     if (req.body.oldPassword && req.body.newPassword){
-        const queryStatement = `SELECT * FROM users WHERE username = "${id}"`;
+        const queryStatement = `SELECT * FROM users WHERE id = "${id}"`;
         database.query(queryStatement, (error, rows) => {
             if(error){
                 res.status(500).json({ error: error.message});
