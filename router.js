@@ -631,9 +631,40 @@ router.post('/user/forgot/code', (req, res, next) => {
 router.post('/user/forgot/reset', passport.authenticate('jwt', {session: false }), (req, res, next) => {
     const code = 9999;//(Math.random() * 9999);
     const username = req.body.username;
-    const password = req.body.password;
+    const password = bcrypt.hashSync(req.body.password, null, null);
     if(code && username && password){
-
+        db.query('SELECT id FROM users WHERE username = ?', [username], (err,rows) => {
+            if(err){
+                res.status(500).json({ error: err.message });
+            } else if (!rows[0]){
+                res.status(500).json({ error: 'Cannot retrieve user'});
+            } else {
+                // const id = rows[0].id;
+                // db.query('SELECT ')
+                if (code === '9999'){
+                    database.query("UPDATE users SET password = ? WHERE id = ?", [password, rows[0].id], function (err, rows) {
+                        if (err) {
+                            res.status(500).json({ error: error.message });
+                        } else if (rows.affectedRows) {
+                            database.query("INSERT INTO password ( userID, passwordHash, changedBy) values (?,?,?)", [id, newPassword, id],
+                                function (err, rows) {
+                                    if (err || !rows.affectedRows) {
+                                        res.status(500).json({
+                                            update: 'success',
+                                            message: 'Record was not saved',
+                                            sql: err.message
+                                        });
+                                    } else {
+                                        res.status(200).json({ message: 'success' });
+                                    }
+                                });
+                        }
+                    });
+                } else {
+                    res.status(500).json({ message: 'Incorrect code'});
+                }
+            }
+        });
 
     } else {
         res.status(500).json({message : 'Missing requirements'})

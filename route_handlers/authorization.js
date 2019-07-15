@@ -137,11 +137,6 @@ exports.changepassword = (req, res) => {
             } else if (!rows[0]) {
                 res.status(500).json({ error: 'Userid doesnt exist' });
             } else if (rows[0]) {
-                console.log(oldPassword);
-
-                console.log(rows[0].password);
-                console.log(rows);
-                console.log(bcrypt.compareSync(oldPassword, rows[0].password));
                 if (bcrypt.compareSync(oldPassword, rows[0].password)) {
                     database.query("UPDATE users SET password = ? WHERE id = ?", [newPassword, id], function (err, rows) {
                         if (err) {
