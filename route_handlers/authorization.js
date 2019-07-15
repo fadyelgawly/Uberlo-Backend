@@ -120,30 +120,48 @@ exports.login = (parameters, res) => {
     }
 }
 
-exports.changepassword = (parameters, res) => {
+exports.changepassword = (req, res) => {
 
-    const username = parameters.username;
-    const password = parameters.password;
+    const id = req.user.username;
+    const oldPassword =  bcrypt.hashSync(req.body.oldPassword, null, null);
+    const newPassword =  bcrypt.hashSync(req.body.newPassword, null, null);
 
-    if (username && password) {
-        const queryStatement = `SELECT * FROM users WHERE username = "${username}"`;
-        database.query(queryStatement, (error, rows) =>{
-            if (error)
-                res.status(401).json({ error:error });
-            else
-                if (!rows.length)
-                    res.status(401).json({ message: 'Invalid credentials'});
-                else if (bcrypt.compareSync(password, rows[0].password)){
-                    let payload = { id: rows[0].id };
-                    let token = jwt.sign(payload, jwtOptions.secretOrKey);
-                    res.status(200).json({  msg: 'ok',
-                                            token: token,
-                                            user: rows[0]
-                                         });
+
+    if (req.body.oldPassword && req.body.newPassword){
+        const queryStatement = `SELECT * FROM users WHERE username = "${id}"`;
+        database.query(queryStatement, (error, rows) => {
+            if(error){
+                res.status(500).json({ error: error.message});
+            } else if (!rows) {
+                res.status(500).json({ error: 'Userid doesnt exist'});
+            } else if (rows[0]) {
+                if (bcrypt.compareSync(oldPassword, rows[0].password)){
+                    database.query("UPDATE user SET password = ? WHERE id = ?", [newPassword, id], function (err, rows) {
+                        if(err){
+                            res.status(500).json({ error: error.message});
+                        } else if (rows.affectedRows){
+                            database.query("INSERT INTO password ( userID, passwordHash, changedBy) values (?,?,?)", [id ,newPassword, id], 
+                            function (err, rows) {
+                                if (err || !rows.affectedRows){
+                                    res.status(500).json({
+                                        update: 'success',
+                                        message: 'Record was not saved',
+                                        sql: err.message
+                                    });
+                                } else {
+                                    res.status(200).json({ message: 'success'});
+                                }
+                            });
+                        }
+                        
+                    });
                 } else {
-                    res.status(500).json({ error: 'Incorrect password'});
+                    res.status(500).json({ error: 'Password incorrect'});
                 }
-        })
+            } else {
+                res.status(500).json({ error: 'Please tell Fady you reached this.'});
+            }
+        });
     } else {
         res.status(500).json({ error: 'No credentials'});
     }
