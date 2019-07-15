@@ -607,7 +607,7 @@ router.post('/user/forgot/code', (req, res, next) => {
             } else if (!rows) {
                 res.status(500).json({error : 'username doesnt exist'});
             } else if (rows[0]) {
-                database.query('INSERT resetcode (userID, code) values(?, ?', [rows[0].id, code], (err, rows) => {
+                db.query('INSERT resetcode (userID, code) values(?, ?', [rows[0].id, code], (err, rows) => {
                     if (err){
                         res.status(500).json({ error : err.message});
                     } else {
@@ -642,11 +642,11 @@ router.post('/user/forgot/reset', passport.authenticate('jwt', {session: false }
                 // const id = rows[0].id;
                 // db.query('SELECT ')
                 if (code === '9999'){
-                    database.query("UPDATE users SET password = ? WHERE id = ?", [password, rows[0].id], function (err, rows) {
+                    db.query("UPDATE users SET password = ? WHERE id = ?", [password, rows[0].id], function (err, rows) {
                         if (err) {
                             res.status(500).json({ error: error.message });
                         } else if (rows.affectedRows) {
-                            database.query("INSERT INTO password ( userID, passwordHash, changedBy) values (?,?,?)", [id, newPassword, id],
+                            db.query("INSERT INTO password ( userID, passwordHash, changedBy) values (?,?,?)", [id, newPassword, id],
                                 function (err, rows) {
                                     if (err || !rows.affectedRows) {
                                         res.status(500).json({
