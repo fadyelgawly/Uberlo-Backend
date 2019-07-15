@@ -607,7 +607,7 @@ router.post('/user/forgot/code', (req, res, next) => {
             } else if (!rows) {
                 res.status(500).json({error : 'username doesnt exist'});
             } else if (rows[0]) {
-                db.query('INSERT resetcode (userID, code) values(?, ?', [rows[0].id, code], (err, rows) => {
+                db.query('INSERT resetcode (userID, code) values(?, ?)', [rows[0].id, code], (err, rows) => {
                     if (err){
                         res.status(500).json({ error : err.message});
                     } else {
@@ -639,8 +639,7 @@ router.post('/user/forgot/reset', passport.authenticate('jwt', {session: false }
             } else if (!rows[0]){
                 res.status(500).json({ error: 'Cannot retrieve user'});
             } else {
-                // const id = rows[0].id;
-                // db.query('SELECT ')
+   
                 if (code === '9999'){
                     db.query("UPDATE users SET password = ? WHERE id = ?", [password, rows[0].id], function (err, rows) {
                         if (err) {
