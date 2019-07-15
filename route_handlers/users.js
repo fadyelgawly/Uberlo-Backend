@@ -21,6 +21,7 @@ exports.patchUserAsAdmin = (req, res) => {
       error: "Only admin are allowed to use this update function"
     })
     return;
+    
   }
   db.query('UPDATE users SET username = ?, firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ? WHERE id = ?',
     [username, firstname, lastname, phone, isAdmin, isDriver, isRemoved, id],
