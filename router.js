@@ -129,7 +129,7 @@ router.patch('/user',passport.authenticate('jwt', { session: false }),  (req, re
     user.patchUser(req, res);
 });
 
-router.patch('/admin/user', (req, res, next) => {
+router.patch('/admin/user',passport.authenticate('jwt', { session: false }), (req, res, next) => {
     user.patchUserAsAdmin(req, res);
 });
 
