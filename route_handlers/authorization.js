@@ -125,7 +125,7 @@ exports.login = (parameters, res) => {
 exports.changepassword = (req, res) => {
 
     const id = req.user.id;
-    const oldPassword = bcrypt.hashSync(req.body.oldPassword, null, null);
+    const oldPassword = req.body.oldPassword;
     const newPassword = bcrypt.hashSync(req.body.newPassword, null, null);
 
 
@@ -143,7 +143,7 @@ exports.changepassword = (req, res) => {
                 console.log(rows);
                 console.log(bcrypt.compareSync(oldPassword, rows[0].password));
                 if (bcrypt.compareSync(oldPassword, rows[0].password)) {
-                    database.query("UPDATE user SET password = ? WHERE id = ?", [newPassword, id], function (err, rows) {
+                    database.query("UPDATE users SET password = ? WHERE id = ?", [newPassword, id], function (err, rows) {
                         if (err) {
                             res.status(500).json({ error: error.message });
                         } else if (rows.affectedRows) {
