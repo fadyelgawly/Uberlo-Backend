@@ -135,7 +135,17 @@ router.patch('/admin/user',passport.authenticate('jwt', { session: false }), (re
 
 router.get('/admin/rides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     if (req.user.isAdmin) {
-        db.query("SELECT * FROM ride", function (error, rows) {
+        db.query(`
+        
+        SELECT ride.* , 
+        CONCAT(u1.firstname, ' ' , u1.lastname) as ridername,
+        CONCAT(u2.firstname, ' ' , u2.lastname) as drivername 
+        FROM ride 
+        JOIN users u1 ON ride.rider = u1.id 
+        JOIN users u2 ON ride.driver = u2.id 
+        
+        `,
+         function (error, rows) {
             if (error) {
                 res.status(500).json({
                     error: error
