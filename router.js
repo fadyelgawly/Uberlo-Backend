@@ -142,7 +142,7 @@ router.get('/admin/rides', passport.authenticate('jwt', { session: false }), (re
                 });
             } else {
                 res.status(200).json({
-                    rides: rows
+                    trips: rows
                 });
             }
         });
