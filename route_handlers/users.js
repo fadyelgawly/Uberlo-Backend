@@ -31,7 +31,8 @@ exports.patchUserAsAdmin = (req, res) => {
           error: error
         });
       } else if (rows.affectedRows) {
-
+        console.log(isAdmin);
+        console.log(isDriver);
         res.status(200).json({
           update: "success"
         });
@@ -48,7 +49,7 @@ exports.patchUser = (req, res) => {
 
   db.query('UPDATE users SET firstname = ?, lastname = ?, phone = ? WHERE id = ?;',
     [firstname, lastname, phone, id], function (error, rows) {
-      if (error) {
+      if (error) { 
         res.status(500).json({
           error: error
         });
