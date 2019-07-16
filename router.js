@@ -133,8 +133,9 @@ router.patch('/admin/user',passport.authenticate('jwt', { session: false }), (re
     user.patchUserAsAdmin(req, res);
 });
 
-router.get('/admin/rides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    if (req.user.isAdmin) {
+router.get('/admin/rides', //passport.authenticate('jwt', { session: false }),
+ (req, res, next) => {
+   // if (req.user.isAdmin) {
         db.query(`
         
         SELECT ride.* , 
@@ -151,6 +152,40 @@ router.get('/admin/rides', passport.authenticate('jwt', { session: false }), (re
                     error: error
                 });
             } else {
+
+                for (var i = 0; i < rows.length; i++) {
+                     switch(parseInt(rows[i].fromArea)){
+                        case 0: rows[i].fromArea = 'Masr El Gedida'
+                        break;
+                        case 1: rows[i].fromArea = 'Tagamoa'
+                        break;
+                        case 2: rows[i].fromArea = 'Zamalek'
+                        break;
+                     }
+                     switch(rows[i].rideStatus){
+                        case 'R': rows[i].rideStatus = 'Requested'
+                        break;
+                        case 'A': rows[i].rideStatus = 'Accepted'
+                        break;
+                        case 'S': rows[i].rideStatus = 'Started'
+                        break;
+                        case 'E': rows[i].rideStatus = 'Ended'
+                        break;
+                        case 'D': rows[i].rideStatus = 'Driver cancelled'
+                        break;
+                        case 'C': rows[i].rideStatus = 'Rider cancelled'
+                        break;
+                     }
+                     switch(parseInt(rows[i].toArea)){
+                        case 0: rows[i].toArea = 'Masr El Gedida'
+                        break;
+                        case 1: rows[i].toArea = 'Tagamoa'
+                        break;
+                        case 2: rows[i].toArea = 'Zamalek'
+                        break;
+                     }
+                }
+
                 res.status(200).json({
                     trips: rows
                 });
@@ -158,11 +193,11 @@ router.get('/admin/rides', passport.authenticate('jwt', { session: false }), (re
         });
 
 
-    } else {
-        res.status(400).json({
-            error: "not authorized, only admins are authorized"
-        })
-    }
+    // } else {
+    //     res.status(400).json({
+    //         error: "not authorized, only admins are authorized"
+    //     })
+    // }
 
 });
 
