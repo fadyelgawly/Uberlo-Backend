@@ -77,8 +77,6 @@ router.get('/getavailablerides', passport.authenticate('jwt', { session: false }
                 });
             } else if (rows[0]) {
 
-
-                
                 const location = rows[0].currentArea;
                 db.query("SELECT * FROM ride WHERE fromArea = ?", [location], function (err, rows) {
                     if (err) {
@@ -103,7 +101,7 @@ router.get('/getavailablerides', passport.authenticate('jwt', { session: false }
 
 
 router.get('/rider/rides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-      
+
     db.query("SELECT * FROM ride WHERE rider = ?", [req.user.id], function (err, rows) {
         if (err) {
             res.status(500).json({
@@ -118,6 +116,21 @@ router.get('/rider/rides', passport.authenticate('jwt', { session: false }), (re
       
 });
 
+router.get('/drider/rides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+
+    db.query("SELECT * FROM ride WHERE driver = ?", [req.user.id], function (err, rows) {
+        if (err) {
+            res.status(500).json({
+                error: err.message
+            });
+        } else {
+            res.status(200).json({
+                rides: rows
+            });
+        }
+    });
+      
+});
 
 
 
