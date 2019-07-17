@@ -585,17 +585,17 @@ router.patch('/rider/cancel',
                         SELECT driver
                         FROM ride 
                         WHERE rider = ?
-                        AND rideStatus = 'C' 
+                        AND rideStatus = ? 
                         `
 
-                    , [req.user.id], (err, rows) => {
+                    , [req.user.id, 'C'], (err, rows) => {
 
                         if (err || !rows[0]) {
                             res.status(500).json({
                                 message: err.message
                             });
                         } else {
-
+                            if (rows[0].driver){
                             db.query(
                                 `
                                 INSERT INTO transaction (fromUser ,toUser, amount) values (?,?, 10);
@@ -619,7 +619,12 @@ router.patch('/rider/cancel',
                                         });
                                     }
                                 });
+                            } else {
+                                res.status(200).json({
+                                    message: 'success'
+                                });
 
+                            }
                         }
                     });
 
