@@ -26,12 +26,12 @@ router.post('/signup', (req, res) => {
     authorization.signup(req.body, res);
 
     client.messages
-    .create({
-     body: 'Welcome to Uberlo',
-     from: '+15017122661',
-     to: '+201000922522'
-   })
-  .then(message => console.log(message.sid));
+        .create({
+            body: 'Welcome to Uberlo',
+            from: '+15017122661',
+            to: '+201000922522'
+        })
+        .then(message => console.log(message.sid));
 
 });
 
@@ -50,8 +50,8 @@ router.get('/getuserrides', (req, res, next) => {
 
 router.get('/getrequestedride', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const id = req.user.id;
-    db.query('SELECT * FROM ride WHERE rider = ? AND rideStatus != ? AND rideStatus != ? AND rideStatus != ?', [id, 'D', 'C', 'E'], (err,rows) => {
-        if (err){
+    db.query('SELECT * FROM ride WHERE rider = ? AND rideStatus != ? AND rideStatus != ? AND rideStatus != ?', [id, 'D', 'C', 'E'], (err, rows) => {
+        if (err) {
             res.status(500).json({
                 error: err.message
             });
@@ -112,51 +112,51 @@ router.get('/rider/rides', passport.authenticate('jwt', { session: false }), (re
     JOIN users u2 ON ride.driver = u2.id  WHERE rider = ?
     
     `, [req.user.id], function (err, rows) {
-        if (err) {
-            res.status(500).json({
-                error: err.message
-            });
-        } else {
+            if (err) {
+                res.status(500).json({
+                    error: err.message
+                });
+            } else {
 
-            for (var i = 0; i < rows.length; i++) {
-                switch(parseInt(rows[i].fromArea)){
-                   case 0: rows[i].fromArea = 'Masr El Gedida'
-                   break;
-                   case 1: rows[i].fromArea = 'Tagamoa'
-                   break;
-                   case 2: rows[i].fromArea = 'Zamalek'
-                   break;
+                for (var i = 0; i < rows.length; i++) {
+                    switch (parseInt(rows[i].fromArea)) {
+                        case 0: rows[i].fromArea = 'Masr El Gedida'
+                            break;
+                        case 1: rows[i].fromArea = 'Tagamoa'
+                            break;
+                        case 2: rows[i].fromArea = 'Zamalek'
+                            break;
+                    }
+                    switch (rows[i].rideStatus) {
+                        case 'R': rows[i].rideStatus = 'Requested'
+                            break;
+                        case 'A': rows[i].rideStatus = 'Accepted'
+                            break;
+                        case 'S': rows[i].rideStatus = 'Started'
+                            break;
+                        case 'E': rows[i].rideStatus = 'Ended'
+                            break;
+                        case 'D': rows[i].rideStatus = 'Driver cancelled'
+                            break;
+                        case 'C': rows[i].rideStatus = 'Rider cancelled'
+                            break;
+                    }
+                    switch (parseInt(rows[i].toArea)) {
+                        case 0: rows[i].toArea = 'Masr El Gedida'
+                            break;
+                        case 1: rows[i].toArea = 'Tagamoa'
+                            break;
+                        case 2: rows[i].toArea = 'Zamalek'
+                            break;
+                    }
                 }
-                switch(rows[i].rideStatus){
-                   case 'R': rows[i].rideStatus = 'Requested'
-                   break;
-                   case 'A': rows[i].rideStatus = 'Accepted'
-                   break;
-                   case 'S': rows[i].rideStatus = 'Started'
-                   break;
-                   case 'E': rows[i].rideStatus = 'Ended'
-                   break;
-                   case 'D': rows[i].rideStatus = 'Driver cancelled'
-                   break;
-                   case 'C': rows[i].rideStatus = 'Rider cancelled'
-                   break;
-                }
-                switch(parseInt(rows[i].toArea)){
-                   case 0: rows[i].toArea = 'Masr El Gedida'
-                   break;
-                   case 1: rows[i].toArea = 'Tagamoa'
-                   break;
-                   case 2: rows[i].toArea = 'Zamalek'
-                   break;
-                }
-           }
 
-            res.status(200).json({
-                rides: rows
-            });
-        }
-    });
-      
+                res.status(200).json({
+                    rides: rows
+                });
+            }
+        });
+
 });
 
 router.get('/driver/rides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
@@ -172,51 +172,51 @@ router.get('/driver/rides', passport.authenticate('jwt', { session: false }), (r
     WHERE driver = ?
     
     `, [req.user.id], function (err, rows) {
-        if (err) {
-            res.status(500).json({
-                error: err.message
-            });
-        } else {
+            if (err) {
+                res.status(500).json({
+                    error: err.message
+                });
+            } else {
 
-            for (var i = 0; i < rows.length; i++) {
-                switch(parseInt(rows[i].fromArea)){
-                   case 0: rows[i].fromArea = 'Masr El Gedida'
-                   break;
-                   case 1: rows[i].fromArea = 'Tagamoa'
-                   break;
-                   case 2: rows[i].fromArea = 'Zamalek'
-                   break;
+                for (var i = 0; i < rows.length; i++) {
+                    switch (parseInt(rows[i].fromArea)) {
+                        case 0: rows[i].fromArea = 'Masr El Gedida'
+                            break;
+                        case 1: rows[i].fromArea = 'Tagamoa'
+                            break;
+                        case 2: rows[i].fromArea = 'Zamalek'
+                            break;
+                    }
+                    switch (rows[i].rideStatus) {
+                        case 'R': rows[i].rideStatus = 'Requested'
+                            break;
+                        case 'A': rows[i].rideStatus = 'Accepted'
+                            break;
+                        case 'S': rows[i].rideStatus = 'Started'
+                            break;
+                        case 'E': rows[i].rideStatus = 'Ended'
+                            break;
+                        case 'D': rows[i].rideStatus = 'Driver cancelled'
+                            break;
+                        case 'C': rows[i].rideStatus = 'Rider cancelled'
+                            break;
+                    }
+                    switch (parseInt(rows[i].toArea)) {
+                        case 0: rows[i].toArea = 'Masr El Gedida'
+                            break;
+                        case 1: rows[i].toArea = 'Tagamoa'
+                            break;
+                        case 2: rows[i].toArea = 'Zamalek'
+                            break;
+                    }
                 }
-                switch(rows[i].rideStatus){
-                   case 'R': rows[i].rideStatus = 'Requested'
-                   break;
-                   case 'A': rows[i].rideStatus = 'Accepted'
-                   break;
-                   case 'S': rows[i].rideStatus = 'Started'
-                   break;
-                   case 'E': rows[i].rideStatus = 'Ended'
-                   break;
-                   case 'D': rows[i].rideStatus = 'Driver cancelled'
-                   break;
-                   case 'C': rows[i].rideStatus = 'Rider cancelled'
-                   break;
-                }
-                switch(parseInt(rows[i].toArea)){
-                   case 0: rows[i].toArea = 'Masr El Gedida'
-                   break;
-                   case 1: rows[i].toArea = 'Tagamoa'
-                   break;
-                   case 2: rows[i].toArea = 'Zamalek'
-                   break;
-                }
-           }
 
-            res.status(200).json({
-                rides: rows
-            });
-        }
-    });
-      
+                res.status(200).json({
+                    rides: rows
+                });
+            }
+        });
+
 });
 
 
@@ -243,17 +243,17 @@ router.get('/user', passport.authenticate('jwt', { session: false }), (req, res,
     }
 });
 
-router.patch('/user',passport.authenticate('jwt', { session: false }),  (req, res, next) => {
+router.patch('/user', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     user.patchUser(req, res);
 });
 
-router.patch('/admin/user',passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.patch('/admin/user', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     user.patchUserAsAdmin(req, res);
 });
 
 router.get('/admin/rides', //passport.authenticate('jwt', { session: false }),
- (req, res, next) => {
-   // if (req.user.isAdmin) {
+    (req, res, next) => {
+        // if (req.user.isAdmin) {
         db.query(`
         
         SELECT ride.* , 
@@ -264,60 +264,60 @@ router.get('/admin/rides', //passport.authenticate('jwt', { session: false }),
         JOIN users u2 ON ride.driver = u2.id 
         
         `,
-         function (error, rows) {
-            if (error) {
-                res.status(500).json({
-                    error: error
-                });
-            } else {
+            function (error, rows) {
+                if (error) {
+                    res.status(500).json({
+                        error: error
+                    });
+                } else {
 
-                for (var i = 0; i < rows.length; i++) {
-                     switch(parseInt(rows[i].fromArea)){
-                        case 0: rows[i].fromArea = 'Masr El Gedida'
-                        break;
-                        case 1: rows[i].fromArea = 'Tagamoa'
-                        break;
-                        case 2: rows[i].fromArea = 'Zamalek'
-                        break;
-                     }
-                     switch(rows[i].rideStatus){
-                        case 'R': rows[i].rideStatus = 'Requested'
-                        break;
-                        case 'A': rows[i].rideStatus = 'Accepted'
-                        break;
-                        case 'S': rows[i].rideStatus = 'Started'
-                        break;
-                        case 'E': rows[i].rideStatus = 'Ended'
-                        break;
-                        case 'D': rows[i].rideStatus = 'Driver cancelled'
-                        break;
-                        case 'C': rows[i].rideStatus = 'Rider cancelled'
-                        break;
-                     }
-                     switch(parseInt(rows[i].toArea)){
-                        case 0: rows[i].toArea = 'Masr El Gedida'
-                        break;
-                        case 1: rows[i].toArea = 'Tagamoa'
-                        break;
-                        case 2: rows[i].toArea = 'Zamalek'
-                        break;
-                     }
+                    for (var i = 0; i < rows.length; i++) {
+                        switch (parseInt(rows[i].fromArea)) {
+                            case 0: rows[i].fromArea = 'Masr El Gedida'
+                                break;
+                            case 1: rows[i].fromArea = 'Tagamoa'
+                                break;
+                            case 2: rows[i].fromArea = 'Zamalek'
+                                break;
+                        }
+                        switch (rows[i].rideStatus) {
+                            case 'R': rows[i].rideStatus = 'Requested'
+                                break;
+                            case 'A': rows[i].rideStatus = 'Accepted'
+                                break;
+                            case 'S': rows[i].rideStatus = 'Started'
+                                break;
+                            case 'E': rows[i].rideStatus = 'Ended'
+                                break;
+                            case 'D': rows[i].rideStatus = 'Driver cancelled'
+                                break;
+                            case 'C': rows[i].rideStatus = 'Rider cancelled'
+                                break;
+                        }
+                        switch (parseInt(rows[i].toArea)) {
+                            case 0: rows[i].toArea = 'Masr El Gedida'
+                                break;
+                            case 1: rows[i].toArea = 'Tagamoa'
+                                break;
+                            case 2: rows[i].toArea = 'Zamalek'
+                                break;
+                        }
+                    }
+
+                    res.status(200).json({
+                        trips: rows
+                    });
                 }
-
-                res.status(200).json({
-                    trips: rows
-                });
-            }
-        });
+            });
 
 
-    // } else {
-    //     res.status(400).json({
-    //         error: "not authorized, only admins are authorized"
-    //     })
-    // }
+        // } else {
+        //     res.status(400).json({
+        //         error: "not authorized, only admins are authorized"
+        //     })
+        // }
 
-});
+    });
 
 
 router.get('/admin/users', passport.authenticate('jwt', { session: false }), (req, res, next) => {
@@ -443,7 +443,7 @@ router.patch('/driver/changeLocation', passport.authenticate('jwt', { session: f
     }
 });
 
-router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.patch('/driver/acceptride', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const rideNo = req.body.rideNo;
     const driverid = req.user.id;
     if (!rideNo) {
@@ -454,27 +454,27 @@ router.patch('/driver/acceptride',  passport.authenticate('jwt', { session: fals
     }
     else {
         db.query("UPDATE ride SET driver = ?, rideStatus = ? WHERE rideNo = ?",
-        [driverid,'A', rideNo],
-        function (err, rows) {
-            if (err)
-                res.status(500).json({
-                    message: err.message
-                });
-            else if (rows.affectedRows) {
-                res.status(200).json({
-                    message: 'update-submit-success'
-                });
+            [driverid, 'A', rideNo],
+            function (err, rows) {
+                if (err)
+                    res.status(500).json({
+                        message: err.message
+                    });
+                else if (rows.affectedRows) {
+                    res.status(200).json({
+                        message: 'update-submit-success'
+                    });
 
-            } else {
-                res.status(500).json({
-                    message: 'update-submit-failure'
-                });
-            }
-        });
-    }        
+                } else {
+                    res.status(500).json({
+                        message: 'update-submit-failure'
+                    });
+                }
+            });
+    }
 });
 
-router.patch('/driver/starttrip',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.patch('/driver/starttrip', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
@@ -496,7 +496,7 @@ router.patch('/driver/starttrip',  passport.authenticate('jwt', { session: false
                 });
 
                 //notify user
-                
+
 
 
             } else {
@@ -507,7 +507,7 @@ router.patch('/driver/starttrip',  passport.authenticate('jwt', { session: false
         });
 });
 
-router.patch('/driver/arrive',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.patch('/driver/arrive', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const driverid = req.user.id
     const rideNo = req.body.rideNo;
     if (!rideNo) {
@@ -535,66 +535,105 @@ router.patch('/driver/arrive',  passport.authenticate('jwt', { session: false })
         });
 });
 
-router.patch('/driver/cancel',  
+router.patch('/driver/cancel',
     passport.authenticate('jwt', { session: false }),
     (req, res, next) => {
 
-    const rideNo = req.body.rideNo;
-    if (!rideNo) {
-        res.status(500).json({
-            message: "Missing Requirements"
+        const rideNo = req.body.rideNo;
+        if (!rideNo) {
+            res.status(500).json({
+                message: "Missing Requirements"
+            });
+            return;
+        }
+        db.query("UPDATE ride SET rideStatus = ? WHERE rideNo = ?", ['D', rideNo], function (err, rows) {
+            if (err) {
+                res.status(500).json({
+                    message: err.message
+                });
+            }
+            else if (rows.affectedRows) {
+
+                res.status(200).json({
+                    message: 'success'
+                });
+
+            } else {
+                res.status(500).json({
+                    message: 'failure'
+                });
+            }
         });
-        return;
-    }
-    db.query("UPDATE ride SET rideStatus = ? WHERE rideNo = ?", ['D' ,rideNo], function (err, rows) {
-        if (err) {
-            res.status(500).json({
-                message: err.message
-            });
-        }
-        else if (rows.affectedRows) {
-
-            res.status(200).json({
-                message: 'success'
-            });
-            
-        } else {
-            res.status(500).json({
-                message: 'failure'
-            });
-        }
     });
-});
 
 
-router.patch('/rider/cancel',  
+router.patch('/rider/cancel',
     passport.authenticate('jwt', { session: false }),
     (req, res, next) => {
 
 
-    db.query("UPDATE ride SET rideStatus = ? WHERE rider = ? AND rideStatus = ? OR rideStatus = ? OR rideStatus = ?", ['C' ,req.user.id, 'R', 'A', 'V'], function (err, rows) {
-        if (err) {
-            res.status(500).json({
-                message: err.message
-            });
-        }
-        else if (rows.affectedRows) {
+        db.query("UPDATE ride SET rideStatus = ? WHERE rider = ? AND rideStatus = ? OR rideStatus = ? OR rideStatus = ?", ['C', req.user.id, 'R', 'A', 'V'], function (err, rows) {
+            if (err) {
+                res.status(500).json({
+                    message: err.message
+                });
+            }
+            else if (rows.affectedRows) {
 
-            res.status(200).json({
-                message: 'success'
-            });
-            
-        } else {
-            res.status(500).json({
-                message: 'failure'
-            });
-        }
+                db.query(
+                    `
+                        SELECT driver
+                        FROM ride 
+                        WHERE rider = ?
+                        AND rideStatus = 'C' 
+                        `
+
+                    , [req.user.id], (err, rows) => {
+
+                        if (err || !rows[0]) {
+                            res.status(500).json({
+                                message: 'failure'
+                            });
+                        } else {
+
+                            db.query(
+                                `
+                                INSERT INTO transaction (fromUser ,toUser, amount) values (?,?, 10);
+                                UPDATE users SET credit =  credit + 10 WHERE id = ?;
+                                UPDATE users SET credit =  credit - 10 WHERE id = ?;
+                                `
+                                , [req.user.id, rows[0].driver, rows[0].driver, req.user.id], (err, rows) => {
+
+                                    if (err)
+                                        res.status(500).json({
+                                            message: err.message
+                                        });
+                                    else if (rows.affectedRows) {
+
+                                        res.status(200).json({
+                                            message: 'success'
+                                        });
+                                    } else if (!rows.affectedRows) {
+                                        res.status(500).json({
+                                            message: 'failure'
+                                        });
+                                    }
+                                });
+
+                        }
+                    });
+
+            } else {
+                res.status(500).json({
+                    message: 'failure'
+                });
+            }
+        });
     });
-});
 
 
 
-router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }), (req, res, next) => {
+router.patch('/driver/endtrip', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const rideNo = req.body.rideNo;
     if (!rideNo) {
         res.status(500).json({
@@ -603,7 +642,7 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
         return;
     }
     db.query("UPDATE ride SET rideStatus = ? WHERE rideNo = ?",
-        ['E' ,rideNo],
+        ['E', rideNo],
         function (err, rows) {
             if (err)
                 res.status(500).json({
@@ -611,8 +650,8 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
                 });
             if (rows.affectedRows) {
 
-                db.query('SELECT * FROM ride WHERE rideNo = ?', [rideNo], (err,rows) => {
-                    if (err){
+                db.query('SELECT * FROM ride WHERE rideNo = ?', [rideNo], (err, rows) => {
+                    if (err) {
                         res.status(500).json({
                             error: err.message
                         });
@@ -625,34 +664,34 @@ router.patch('/driver/endtrip',  passport.authenticate('jwt', { session: false }
                         UPDATE users SET credit =  credit + 50 WHERE id = ?;
                         UPDATE users SET credit =  credit - 50 WHERE id = ?;
                         
-                        `, 
-                        [rows[0].driver, rows[0].rider, rows[0].driver, rows[0].rider],
+                        `,
+                            [rows[0].driver, rows[0].rider, rows[0].driver, rows[0].rider],
 
 
-                         function (err, rows) {
-                            if (err) {
-                                res.status(500).json({
-                                    message: err.message
-                                });
+                            function (err, rows) {
+                                if (err) {
+                                    res.status(500).json({
+                                        message: err.message
+                                    });
 
-                                return;
-                            } else {
-
-
+                                    return;
+                                } else {
 
 
 
-                                res.status(200).json({
-                                    message: 'success'
-                                });
 
-                            }
-                        });
-                        
+
+                                    res.status(200).json({
+                                        message: 'success'
+                                    });
+
+                                }
+                            });
+
                     }
-                });                
+                });
 
-  
+
 
 
             } else {
@@ -694,9 +733,9 @@ router.post('/admin/transaction', passport.authenticate('jwt', { session: false 
 
 
 router.patch('/user/rate', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    if(req.body.rate && req.body.rideNo){
-        db.query('UPDATE ride SET driverRate = ? WHERE rideNo = ? AND rider = ? ', [req.body.rate, req.body.rideNo, req.user.id] ,function (err, rows) {
-            if (err){
+    if (req.body.rate && req.body.rideNo) {
+        db.query('UPDATE ride SET driverRate = ? WHERE rideNo = ? AND rider = ? ', [req.body.rate, req.body.rideNo, req.user.id], function (err, rows) {
+            if (err) {
                 res.status(500).json({
                     message: err.message
                 });
@@ -718,13 +757,13 @@ router.patch('/user/rate', passport.authenticate('jwt', { session: false }), (re
         res.status(500).json({
             message: "Expected rideNo"
         });
-    } 
+    }
 });
 
 router.patch('/driver/rate', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    if(req.body.rate && req.body.rideNo){
-        db.query('UPDATE ride SET riderRate = ? WHERE rideNo = ? AND driver = ? ', [req.body.rate, req.body.rideNo, req.user.id] ,function (err, rows) {
-            if (err){
+    if (req.body.rate && req.body.rideNo) {
+        db.query('UPDATE ride SET riderRate = ? WHERE rideNo = ? AND driver = ? ', [req.body.rate, req.body.rideNo, req.user.id], function (err, rows) {
+            if (err) {
                 res.status(500).json({
                     message: err.message
                 });
@@ -746,18 +785,18 @@ router.patch('/driver/rate', passport.authenticate('jwt', { session: false }), (
         res.status(500).json({
             message: "Expected rideNo"
         });
-    } 
+    }
 });
 
-router.post('/user/changepassword', passport.authenticate('jwt', {session: false }), (req,res,next) =>{
+router.post('/user/changepassword', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     authorization.changepassword(req, res);
 })
 
 
-router.post('/ridesummary', passport.authenticate('jwt', {session: false }), (req, res, next) => {
-    if(req.body.rideNo) {
+router.post('/ridesummary', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+    if (req.body.rideNo) {
         db.query('SELECT fromArea, toArea, fare FROM ride WHERE rider = ? OR driver = ?', [req.user.id, req.user.id], (err, rows) => {
-            if (err){
+            if (err) {
                 res.status(500).json({
                     message: err.message
                 });
@@ -780,50 +819,50 @@ router.post('/user/forgot/code', (req, res, next) => {
     const username = req.body.username;
 
     const queryStatement = `SELECT * FROM users WHERE username = "${username}"`;
-        db.query(queryStatement, (error, rows) => {
-            if (error){
-                res.status(500).json({ message : error.message });
-            } else if (!rows) {
-                res.status(500).json({error : 'username doesnt exist'});
-            } else if (rows[0]) {
-                db.query('INSERT resetcode (userID, code) values(?, ?)', [rows[0].id, code], (err, rows) => {
-                    if (err){
-                        res.status(500).json({ error : err.message});
-                    } else {
+    db.query(queryStatement, (error, rows) => {
+        if (error) {
+            res.status(500).json({ message: error.message });
+        } else if (!rows) {
+            res.status(500).json({ error: 'username doesnt exist' });
+        } else if (rows[0]) {
+            db.query('INSERT resetcode (userID, code) values(?, ?)', [rows[0].id, code], (err, rows) => {
+                if (err) {
+                    res.status(500).json({ error: err.message });
+                } else {
 
-                        client.messages
+                    client.messages
                         .create({
-                         body: `Code is ${code}`,
-                         from: '+15017122661',
-                         to: '+201000922522'
-                       })
-                      .then(message => console.log(message.sid));
-                      res.status(200).json({ codeSent: 'success'});
-                        
-                    }
-                });
+                            body: `Code is ${code}`,
+                            from: '+15017122661',
+                            to: '+201000922522'
+                        })
+                        .then(message => console.log(message.sid));
+                    res.status(200).json({ codeSent: 'success' });
 
-            }
-        });
+                }
+            });
+
+        }
+    });
 });
 
-router.post('/user/forgot/reset',  (req, res, next) => {
-  
+router.post('/user/forgot/reset', (req, res, next) => {
+
     const code = 9999;//(Math.random() * 9999);
     const username = req.body.username;
     const password = bcrypt.hashSync(req.body.password, null, null);
     var id;
-    if(code && username && password){
-        db.query('SELECT id FROM users WHERE username = ?', [username], (err,rows) => {
-            if(err){
+    if (code && username && password) {
+        db.query('SELECT id FROM users WHERE username = ?', [username], (err, rows) => {
+            if (err) {
                 res.status(500).json({ error: err.message });
-            } else if (!rows[0]){
-                res.status(500).json({ error: 'Cannot retrieve user'});
+            } else if (!rows[0]) {
+                res.status(500).json({ error: 'Cannot retrieve user' });
             } else {
                 id = rows[0].id
                 console.log(rows);
                 console.log(code === 9999);
-                if (code === 9999){
+                if (code === 9999) {
                     db.query("UPDATE users SET password = ? WHERE id = ?", [password, id], function (err, rows) {
                         if (err) {
                             res.status(500).json({ error: error.message });
@@ -843,14 +882,45 @@ router.post('/user/forgot/reset',  (req, res, next) => {
                         }
                     });
                 } else {
-                    res.status(500).json({ message: 'Incorrect code'});
+                    res.status(500).json({ message: 'Incorrect code' });
                 }
             }
         });
 
     } else {
-        res.status(500).json({message : 'Missing requirements'})
+        res.status(500).json({ message: 'Missing requirements' })
     }
+});
+
+
+router.get('/admin/promo', (req, res, next) => {
+    if(req.user.isAdmin){
+        db.query(
+        `
+        SELECT * 
+        FROM promo
+        `
+        , (err, rows) =>{
+            if(err){
+                res.status(500).json({
+                    message: err.message
+                });
+            } else {
+                res.status(200).json({
+                    promos: rows 
+                });
+            }
+        });
+
+
+    } else {
+        res.status(500).json({
+            message: 'Only admins are allowed here'
+        });
+    }
+
+
+
 });
 
 
