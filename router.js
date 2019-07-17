@@ -161,7 +161,17 @@ router.get('/rider/rides', passport.authenticate('jwt', { session: false }), (re
 
 router.get('/driver/rides', passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
-    db.query("SELECT * FROM ride WHERE driver = ?", [req.user.id], function (err, rows) {
+    db.query(`
+    
+    SELECT ride.* , 
+    CONCAT(u1.firstname, ' ' , u1.lastname) as ridername,
+    CONCAT(u2.firstname, ' ' , u2.lastname) as drivername 
+    FROM ride 
+    JOIN users u1 ON ride.rider = u1.id 
+    JOIN users u2 ON ride.driver = u2.id     
+    WHERE driver = ?
+    
+    `, [req.user.id], function (err, rows) {
         if (err) {
             res.status(500).json({
                 error: err.message
