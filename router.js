@@ -50,7 +50,7 @@ router.get('/getuserrides', (req, res, next) => {
 
 router.get('/getrequestedride', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     const id = req.user.id;
-    db.query('SELECT * FROM ride WHERE rider = ? AND rideStatus != ? AND rideStatus != ? AND rideStatus != ?', [id, 'D', 'C', 'E'], (err, rows) => {
+    db.query('SELECT * FROM ride WHERE rider = ? AND rideStatus != ? AND rideStatus != ?', [id, 'D', 'C'], (err, rows) => {
         if (err) {
             res.status(500).json({
                 error: err.message
@@ -900,40 +900,64 @@ router.post('/user/forgot/reset', (req, res, next) => {
 
 router.get('/admin/promo', passport.authenticate('jwt', { session: false }), (req, res, next) => {
 
-//INSERT INTO `promo`(`code`, `value`, `createdBy`) 
-//VALUES ('Welcome', 10 , 15)
-//
-    if(req.user.isAdmin){
-        db.query(
-        `
-        SELECT promo.code, promo.value , promo.createdBy, u.username as username
-        FROM promo
-        JOIN users u ON promo.createdBy = u.id 
+    //INSERT INTO `promo`(`code`, `value`, `createdBy`) 
+    //VALUES ('Welcome', 10 , 15)
+    //
+        if(req.user.isAdmin){
+            db.query(
+            `
+            SELECT promo.code, promo.value , promo.createdBy, u.username as username
+            FROM promo
+            JOIN users u ON promo.createdBy = u.id   
+            `
+            , (err, rows) =>{
+                if(err){
+                    res.status(500).json({
+                        message: err.message
+                    });
+                } else {
+                    res.status(200).json({
+                        promos: rows 
+                    });
+                }
+            });
+    
+        } else {
+            res.status(500).json({
+                message: 'Only admins are allowed here'
+            });
+        }
+    });
+
+
+    router.post('/admin/promo', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+
+        const code = req.body.code;
+        const value = req.body.value;
         
-        
-        `
-        , (err, rows) =>{
-            if(err){
-                res.status(500).json({
-                    message: err.message
+            if(req.user.isAdmin){
+                db.query(
+                `
+                INSERT INTO promo(code, value, createdBy) 
+                VALUES (?, ? , ?) 
+                `
+                ,[code, value, req.user.id], (err, rows) =>{
+                    if(err){
+                        res.status(500).json({
+                            message: err.message
+                        });
+                    } else {
+                        res.status(200).json({
+                            promos: rows 
+                        });
+                    }
                 });
+        
             } else {
-                res.status(200).json({
-                    promos: rows 
+                res.status(500).json({
+                    message: 'Only admins are allowed here'
                 });
             }
         });
-
-
-    } else {
-        res.status(500).json({
-            message: 'Only admins are allowed here'
-        });
-    }
-
-
-
-});
-
 
 module.exports = router;
