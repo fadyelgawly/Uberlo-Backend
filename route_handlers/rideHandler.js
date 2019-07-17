@@ -5,6 +5,7 @@ exports.requestRide = (req, res) => {
         rider = req.user.id,
         fromArea = req.body.fromArea,
         toArea = req.body.toArea;
+        promo = req.body.promo
         if (!(fromArea && toArea)){
             res.status(500).json({error : "missing requirement(s)",
                                 expected : "fromArea && toArea"
@@ -12,7 +13,7 @@ exports.requestRide = (req, res) => {
                                 return;
         }
     
-    db.query("INSERT INTO ride ( rider, fromArea, toArea) values (?,?,?)",[rider ,fromArea, toArea], function(err, rows) { //TODO: rider id
+    db.query("INSERT INTO ride ( rider, fromArea, toArea, promo) values (?,?,?, ?)",[rider ,fromArea, toArea, promo], function(err, rows) { //TODO: rider id
 
         if (err){
             res.status(500).json({
