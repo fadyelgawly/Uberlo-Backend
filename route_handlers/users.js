@@ -14,6 +14,7 @@ exports.patchUserAsAdmin = (req, res) => {
   const isAdmin = req.body.isAdmin;
   const isDriver = req.body.isDriver;
   const isRemoved = req.body.isRemoved;
+  const isRemoved = req.body.credit;
   const isAdminUser = req.user.isAdmin;
 
   if (!isAdminUser) {
@@ -23,8 +24,8 @@ exports.patchUserAsAdmin = (req, res) => {
     return;
     
   }
-  db.query('UPDATE users SET username = ?, firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ? WHERE id = ?',
-    [username, firstname, lastname, phone, isAdmin, isDriver, isRemoved, id],
+  db.query('UPDATE users SET username = ?, firstname = ?, lastname = ?, phone = ? , isAdmin = ? , isDriver = ?, isRemoved = ?, credit = ? WHERE id = ?',
+    [username, firstname, lastname, phone, isAdmin, isDriver, isRemoved, credit, id],
     function (error, rows) {
       if (error) {
         res.status(500).json({
