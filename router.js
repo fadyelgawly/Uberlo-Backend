@@ -592,7 +592,7 @@ router.patch('/rider/cancel',
 
                         if (err || !rows[0]) {
                             res.status(500).json({
-                                message: 'failure'
+                                message: err.message
                             });
                         } else {
 
