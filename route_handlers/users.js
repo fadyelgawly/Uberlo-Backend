@@ -14,7 +14,7 @@ exports.patchUserAsAdmin = (req, res) => {
   const isAdmin = req.body.isAdmin;
   const isDriver = req.body.isDriver;
   const isRemoved = req.body.isRemoved;
-  const isRemoved = req.body.credit;
+  const credit = req.body.credit;
   const isAdminUser = req.user.isAdmin;
 
   if (!isAdminUser) {
