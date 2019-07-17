@@ -893,12 +893,19 @@ router.post('/user/forgot/reset', (req, res, next) => {
 });
 
 
-router.get('/admin/promo', (req, res, next) => {
+router.get('/admin/promo', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+
+//INSERT INTO `promo`(`code`, `value`, `createdBy`) 
+//VALUES ('Welcome', 10 , 15)
+//
     if(req.user.isAdmin){
         db.query(
         `
-        SELECT * 
+        SELECT promo.code, promo.value , promo.createdBy, u.username as username
         FROM promo
+        JOIN users u ON promo.createdBy = u.id 
+        
+        
         `
         , (err, rows) =>{
             if(err){
